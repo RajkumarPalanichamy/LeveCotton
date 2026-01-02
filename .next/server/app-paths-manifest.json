@@ -1,0 +1,19 @@
+{
+  "/admin/page": "app/admin/page.js",
+  "/api/wishlist/route": "app/api/wishlist/route.js",
+  "/landing/page": "app/landing/page.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/cart/page": "app/cart/page.js",
+  "/api/cart/route": "app/api/cart/route.js",
+  "/api/upload/route": "app/api/upload/route.js",
+  "/api/products/route": "app/api/products/route.js",
+  "/page": "app/page.js",
+  "/new-arrivals/page": "app/new-arrivals/page.js",
+  "/best-sellers/page": "app/best-sellers/page.js",
+  "/collections/page": "app/collections/page.js",
+  "/videos/page": "app/videos/page.js",
+  "/wishlist/page": "app/wishlist/page.js",
+  "/sale/page": "app/sale/page.js",
+  "/product/[id]/page": "app/product/[id]/page.js"
+}

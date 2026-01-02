@@ -1,73 +1,96 @@
-# Welcome to your Lovable project
+# Style Hub Admin - Next.js Version
 
-## Project info
+A modern e-commerce admin dashboard built with Next.js, TypeScript, and shadcn/ui.
 
-**URL**: https://lovable.dev/projects/98bc04ef-01c0-4dd0-a6e8-4ca3b93726f6
+## Project Overview
 
-## How can I edit this code?
+This project has been converted from a React/Vite application to Next.js with the following features:
 
-There are several ways of editing your application.
+- **Frontend Store**: Product catalog, shopping cart, checkout
+- **Admin Dashboard**: Product management, order tracking, customer management
+- **Modern UI**: Built with shadcn/ui components and Tailwind CSS
+- **Type Safety**: Full TypeScript support
+- **Local Storage**: Client-side data persistence
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/98bc04ef-01c0-4dd0-a6e8-4ca3b93726f6) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
 Follow these steps:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Step 1: Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Step 2: Navigate to the project directory
+cd style-hub-admin
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Step 3: Install the necessary dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
+## Technologies Used
 
 This project is built with:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **Next.js 14** - React framework with App Router
+- **TypeScript** - Type safety and better developer experience
+- **React** - UI library
+- **shadcn/ui** - Modern component library
+- **Tailwind CSS** - Utility-first CSS framework
+- **Lucide React** - Beautiful icons
+- **React Query** - Data fetching and state management
 
-## How can I deploy this project?
+## Project Structure
 
-Simply open [Lovable](https://lovable.dev/projects/98bc04ef-01c0-4dd0-a6e8-4ca3b93726f6) and click on Share -> Publish.
+```
+├── app/                    # Next.js App Router pages
+│   ├── admin/             # Admin dashboard pages
+│   ├── cart/              # Shopping cart page
+│   ├── checkout/          # Checkout page
+│   ├── product/[id]/      # Dynamic product pages
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Home page
+├── components/            # Reusable components
+│   ├── ui/               # shadcn/ui components
+│   ├── Navbar.tsx        # Navigation component
+│   └── providers.tsx     # Client-side providers
+├── hooks/                # Custom React hooks
+├── lib/                  # Utility functions
+├── types/                # TypeScript type definitions
+└── public/               # Static assets
+```
 
-## Can I connect a custom domain to my Lovable project?
+## Features
 
-Yes, you can!
+### Store Frontend
+- Product catalog with filtering
+- Product detail pages
+- Shopping cart functionality
+- Checkout process
+- Responsive design
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Admin Dashboard
+- Product management (CRUD operations)
+- Order tracking and management
+- Customer information
+- Dashboard analytics
+- Inventory management
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## Deployment
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+## Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
