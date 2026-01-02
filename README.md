@@ -1,46 +1,54 @@
-# Style Hub Admin - Next.js Version
+# LeveCotton - Premium Fashion E-commerce
 
-A modern e-commerce admin dashboard built with Next.js, TypeScript, and shadcn/ui.
+A modern e-commerce platform for premium fashion built with Next.js, TypeScript, and shadcn/ui.
 
 ## Project Overview
 
-This project has been converted from a React/Vite application to Next.js with the following features:
+LeveCotton is a complete e-commerce solution featuring:
 
-- **Frontend Store**: Product catalog, shopping cart, checkout
-- **Admin Dashboard**: Product management, order tracking, customer management
+- **Frontend Store**: Product catalog with filtering, shopping cart, wishlist
+- **Admin Dashboard**: Product management with edit/delete functionality
 - **Modern UI**: Built with shadcn/ui components and Tailwind CSS
-- **Type Safety**: Full TypeScript support
-- **Local Storage**: Client-side data persistence
+- **API Integration**: RESTful API with 97+ products across 4 categories
+- **Responsive Design**: Mobile-first approach with beautiful UI
+
+## Features
+
+### Store Frontend
+- 97 products across 4 categories (New Arrivals, Best Sellers, Collections, Sale)
+- Advanced filtering by color, fabric, and price range
+- Product detail pages with image galleries
+- Shopping cart and wishlist functionality
+- Responsive design for all devices
+
+### Admin Dashboard
+- Product management (edit/delete operations)
+- Real-time product updates
+- Category-based product organization
+- Clean admin interface
 
 ## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
 ```sh
-# Step 1: Clone the repository
-git clone <YOUR_GIT_URL>
+# Clone the repository
+git clone https://github.com/Harish0327/style-hub-admin.git
 
-# Step 2: Navigate to the project directory
+# Navigate to project directory
 cd style-hub-admin
 
-# Step 3: Install the necessary dependencies
+# Install dependencies
 npm install
 
-# Step 4: Start the development server
+# Start development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ## Technologies Used
 
-This project is built with:
-
 - **Next.js 14** - React framework with App Router
-- **TypeScript** - Type safety and better developer experience
-- **React** - UI library
+- **TypeScript** - Type safety and developer experience
 - **shadcn/ui** - Modern component library
 - **Tailwind CSS** - Utility-first CSS framework
 - **Lucide React** - Beautiful icons
@@ -49,48 +57,30 @@ This project is built with:
 ## Project Structure
 
 ```
-├── app/                    # Next.js App Router pages
-│   ├── admin/             # Admin dashboard pages
-│   ├── cart/              # Shopping cart page
-│   ├── checkout/          # Checkout page
-│   ├── product/[id]/      # Dynamic product pages
-│   ├── layout.tsx         # Root layout
+├── app/                    # Next.js App Router
+│   ├── api/               # API routes
+│   ├── admin/             # Admin dashboard
+│   ├── [category]/        # Category pages
+│   ├── product/[id]/      # Product detail pages
 │   └── page.tsx           # Home page
 ├── components/            # Reusable components
-│   ├── ui/               # shadcn/ui components
-│   ├── Navbar.tsx        # Navigation component
-│   └── providers.tsx     # Client-side providers
 ├── hooks/                # Custom React hooks
 ├── lib/                  # Utility functions
-├── types/                # TypeScript type definitions
+├── types/                # TypeScript definitions
 └── public/               # Static assets
 ```
 
-## Features
-
-### Store Frontend
-- Product catalog with filtering
-- Product detail pages
-- Shopping cart functionality
-- Checkout process
-- Responsive design
-
-### Admin Dashboard
-- Product management (CRUD operations)
-- Order tracking and management
-- Customer information
-- Dashboard analytics
-- Inventory management
-
 ## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+For dynamic functionality with API routes, deploy to:
+- **Vercel** (recommended)
+- **Railway**
+- **Render**
+- **Netlify Functions**
 
 ## Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+- `npm run dev` - Development server
+- `npm run build` - Production build
+- `npm run start` - Production server
+- `npm run lint` - Code linting
