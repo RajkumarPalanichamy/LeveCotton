@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useProducts } from '@/hooks/useProducts';
 import { Navbar } from '@/components/Navbar';
-import { Edit, Save, X } from 'lucide-react';
+import { Edit, Save, X, Upload } from 'lucide-react';
 
 export default function AdminPanel() {
   const { products, loading, updateProduct, deleteProduct } = useProducts();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [editForm, setEditForm] = useState({
     name: '',
     price: 0,
@@ -17,6 +18,33 @@ export default function AdminPanel() {
     fabric: '',
     image: ''
   });
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        setEditForm(prev => ({ ...prev, image: result.imageUrl }));
+      } else {
+        alert('Upload failed: ' + result.error);
+      }
+    } catch (error) {
+      alert('Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const startEdit = (product: any) => {
     setEditingId(product.id);
@@ -200,14 +228,35 @@ export default function AdminPanel() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-                <input
-                  type="text"
-                  value={editForm.image}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, image: e.target.value }))}
-                  className="w-full p-2 border rounded"
-                  placeholder="/products/1.jpg"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Image</label>
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={editForm.image}
+                    onChange={(e) => setEditForm(prev => ({ ...prev, image: e.target.value }))}
+                    className="w-full p-2 border rounded"
+                    placeholder="/products/1.jpg"
+                  />
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      id="image-upload"
+                    />
+                    <label
+                      htmlFor="image-upload"
+                      className="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600"
+                    >
+                      <Upload className="w-4 h-4" />
+                      {uploading ? 'Uploading...' : 'Upload Image'}
+                    </label>
+                  </div>
+                  {editForm.image && (
+                    <img src={editForm.image} alt="Preview" className="w-20 h-20 object-cover rounded" />
+                  )}
+                </div>
               </div>
             </div>
           </div>
