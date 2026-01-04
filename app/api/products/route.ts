@@ -103,6 +103,8 @@ let productData = [
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const filter = searchParams.get('filter');
+  const page = parseInt(searchParams.get('page') || '1');
+  const limit = parseInt(searchParams.get('limit') || '12');
   
   let filteredProducts = productData;
   
@@ -110,8 +112,19 @@ export async function GET(request: NextRequest) {
     filteredProducts = productData.filter(product => product.category === filter);
   }
   
-  console.log(`API called with filter: ${filter}, returning ${filteredProducts.length} products`);
-  return NextResponse.json({ products: filteredProducts });
+  // Pagination
+  const startIndex = (page - 1) * limit;
+  const endIndex = startIndex + limit;
+  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+  
+  console.log(`API called with filter: ${filter}, page: ${page}, returning ${paginatedProducts.length} products`);
+  
+  return NextResponse.json({ 
+    products: paginatedProducts,
+    total: filteredProducts.length,
+    page,
+    totalPages: Math.ceil(filteredProducts.length / limit)
+  });
 }
 
 export async function POST(request: NextRequest) {

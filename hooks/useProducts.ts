@@ -29,7 +29,7 @@ export function useProducts(filter?: string) {
       setLoading(true);
       setError(null);
       
-      const url = filter ? `/api/products?filter=${filter}` : '/api/products';
+      const url = filter ? `/api/products?filter=${filter}&limit=12` : '/api/products?limit=12';
       const response = await fetch(url);
       
       if (!response.ok) {
