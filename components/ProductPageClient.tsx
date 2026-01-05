@@ -54,7 +54,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
     const message = `Hi LEVE COTTONS! I want to buy this product:\n\n*${product.name}*\nPrice: ₹${product.price.toLocaleString('en-IN')}\n${selectedSize ? `Size: ${selectedSize}` : ''}\n${selectedColor ? `Color: ${selectedColor}` : ''}`;
 
     const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/919363499905?text=${encodedMessage}`, '_blank');
+    window.open(`https://wa.me/919345868005?text=${encodedMessage}`, '_blank');
   };
 
   return (
@@ -132,18 +132,14 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
               </div>
 
               <div className="mb-6">
-                <h3 className="text-xl font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <span className="text-purple-600">📝</span> Description
-                </h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">Description</h3>
                 <p className="text-gray-600 leading-relaxed">{product.description}</p>
               </div>
 
               {/* Colors */}
               {product.color && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <span className="text-purple-600">🎨</span> Color
-                  </h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Color</h3>
                   <div className="flex flex-wrap gap-2">
                     <span className="px-4 py-2 bg-gradient-to-r from-purple-100 to-pink-100 border border-purple-200 rounded-xl text-purple-800 font-medium">
                       {product.color}
@@ -155,9 +151,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
               {/* Fabric */}
               {product.fabric && (
                 <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                    <span className="text-purple-600">🧵</span> Fabric
-                  </h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Fabric</h3>
                   <div className="flex flex-wrap gap-2">
                     <span className="px-4 py-2 bg-gradient-to-r from-pink-100 to-purple-100 border border-pink-200 rounded-xl text-pink-800 font-medium">
                       {product.fabric}
@@ -172,8 +166,15 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                   onClick={handleBuyNow}
                   className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white py-4 px-8 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
                 >
-                  <span className="text-2xl">💬</span>
                   Buy Now via WhatsApp
+                </button>
+                
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white py-4 px-8 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
+                >
+                  <ShoppingBag className="w-6 h-6" />
+                  Proceed to Checkout
                 </button>
                 
                 <button
@@ -188,9 +189,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
 
             {/* Additional Info */}
             <div className="bg-white rounded-2xl p-6 shadow-xl">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <span className="text-purple-600">ℹ️</span> Product Information
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Information</h3>
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between items-center py-2 border-b border-gray-100">
                   <span className="text-gray-600">Product ID:</span>

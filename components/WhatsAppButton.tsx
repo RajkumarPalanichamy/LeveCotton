@@ -1,7 +1,7 @@
 'use client';
 
 export function WhatsAppButton() {
-  const phoneNumber = '919363499905';
+  const phoneNumber = '919345868005';
   const message = `Hi LEVE COTTONS! I'm interested in your products.`;
 
   const handleWhatsAppClick = () => {

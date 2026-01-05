@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Instagram, Phone, MapPin, Heart } from 'lucide-react';
+import { Instagram, Facebook, Phone, MapPin, Heart } from 'lucide-react';
 
 export const Footer = () => {
   return (
@@ -9,7 +9,7 @@ export const Footer = () => {
           {/* Brand */}
           <div className="space-y-6">
             <div>
-              <h3 className="text-3xl font-serif mb-2" style={{ color: '#6D3B2C' }}>LEVECOTTON</h3>
+              <h3 className="text-3xl font-serif mb-2" style={{ color: '#6D3B2C' }}>LEVE COTTONS</h3>
               <p className="text-sm font-light tracking-wider mb-4" style={{ color: '#6D3B2C' }}>where tradition meets trend</p>
               <p className="text-gray-600 leading-relaxed mb-6">
                 Discover premium fashion that celebrates timeless elegance with modern style. Quality craftsmanship in every piece.
@@ -21,6 +21,9 @@ export const Footer = () => {
               <div className="flex space-x-4">
                 <a href="https://www.instagram.com/leve_cottons24/?igsh=czN0eWd0eGpocXh1" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-shadow cursor-pointer">
                   <Instagram className="w-5 h-5" style={{ color: '#6D3B2C' }} />
+                </a>
+                <a href="https://www.facebook.com/share/173KEwKWyn/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+                  <Facebook className="w-5 h-5" style={{ color: '#6D3B2C' }} />
                 </a>
               </div>
             </div>
@@ -70,7 +73,7 @@ export const Footer = () => {
                 </div>
                 <div>
                   <p className="text-sm font-medium" style={{ color: '#6D3B2C' }}>Call Us</p>
-                  <p className="text-gray-600">9626426733</p>
+                  <p className="text-gray-600">93458 68005</p>
                 </div>
               </div>
               
@@ -95,7 +98,7 @@ export const Footer = () => {
         <div className="border-t mt-12 pt-8" style={{ borderColor: '#E5D5C8' }}>
           <div className="text-center">
             <p className="text-gray-600 text-sm">
-              © {new Date().getFullYear()} Leve Cotton. All rights reserved.
+              © {new Date().getFullYear()} Leve Cottons. All rights reserved.
             </p>
           </div>
         </div>
