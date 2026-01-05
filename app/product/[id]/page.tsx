@@ -1,19 +1,38 @@
-import { Navbar } from '@/components/Navbar';
-import { products } from '@/lib/data';
-import ProductPageClient from '@/components/ProductPageClient';
+'use client';
 
-export async function generateStaticParams() {
-  return products.map((product) => ({
-    id: product.id,
-  }));
-}
+import { useState, useEffect } from 'react';
+import { Navbar } from '@/components/Navbar';
+import ProductPageClient from '@/components/ProductPageClient';
+import { useProducts } from '@/hooks/useProducts';
 
 interface ProductPageProps {
   params: { id: string };
 }
 
 export default function ProductPage({ params }: ProductPageProps) {
-  const product = products.find(p => p.id === params.id);
+  const { products, loading } = useProducts();
+  const [product, setProduct] = useState<any>(null);
+
+  useEffect(() => {
+    if (products.length > 0) {
+      const foundProduct = products.find(p => p.id === params.id);
+      setProduct(foundProduct);
+    }
+  }, [products, params.id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8 text-center">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/4 mx-auto"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
