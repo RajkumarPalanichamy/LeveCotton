@@ -93,33 +93,78 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50">
       <Navbar />
       
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Panel</h1>
-          <p className="text-gray-600">Manage products</p>
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full mb-4">
+            <Edit className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">Admin Dashboard</h1>
+          <p className="text-gray-600 text-lg">Manage your product catalog with style</p>
+          <div className="w-24 h-1 bg-gradient-to-r from-purple-600 to-pink-600 mx-auto mt-4 rounded-full"></div>
         </div>
 
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+          <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+              <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold">📦</span>
+              </div>
+              Product Management
+            </h2>
+            <p className="text-purple-100 mt-2">Total Products: {products.length}</p>
+          </div>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Color</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fabric</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-purple-200">
+                    <div className="flex items-center gap-2">
+                      <span className="text-purple-600">🖼️</span> Image
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-purple-200">
+                    <div className="flex items-center gap-2">
+                      <span className="text-purple-600">🏷️</span> Name
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-purple-200">
+                    <div className="flex items-center gap-2">
+                      <span className="text-purple-600">💰</span> Price
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-purple-200">
+                    <div className="flex items-center gap-2">
+                      <span className="text-purple-600">📂</span> Category
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-purple-200">
+                    <div className="flex items-center gap-2">
+                      <span className="text-purple-600">🎨</span> Color
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-purple-200">
+                    <div className="flex items-center gap-2">
+                      <span className="text-purple-600">🧵</span> Fabric
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-purple-200">
+                    <div className="flex items-center gap-2">
+                      <span className="text-purple-600">📝</span> Description
+                    </div>
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-purple-200">
+                    <div className="flex items-center gap-2">
+                      <span className="text-purple-600">⚙️</span> Actions
+                    </div>
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
-                {products.map((product) => (
-                  <tr key={product.id}>
+              <tbody className="divide-y divide-gray-100">
+                {products.map((product, index) => (
+                  <tr key={product.id} className={`hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
                     <td className="px-6 py-4">
                       {editingId === product.id ? (
                         <div className="space-y-2">
@@ -127,7 +172,7 @@ export default function AdminPanel() {
                             type="text"
                             value={editForm.image}
                             onChange={(e) => setEditForm(prev => ({ ...prev, image: e.target.value }))}
-                            className="w-full p-1 border rounded text-xs"
+                            className="w-full p-2 border-2 border-purple-200 rounded-lg text-xs focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all"
                             placeholder="/products/1.jpg"
                           />
                           <div className="flex items-center gap-1">
@@ -140,16 +185,19 @@ export default function AdminPanel() {
                             />
                             <label
                               htmlFor={`image-upload-${product.id}`}
-                              className="flex items-center gap-1 px-2 py-1 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600 text-xs"
+                              className="flex items-center gap-1 px-3 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg cursor-pointer hover:from-purple-600 hover:to-pink-600 text-xs font-medium shadow-lg transform hover:scale-105 transition-all duration-200"
                             >
                               <Upload className="w-3 h-3" />
                               {uploading ? 'Uploading...' : 'Upload'}
                             </label>
                           </div>
-                          <img src={editForm.image} alt="Preview" className="w-12 h-12 object-cover rounded" />
+                          <div className="relative">
+                            <img src={editForm.image} alt="Preview" className="w-12 h-12 object-cover rounded-lg border-2 border-purple-200 shadow-md" />
+                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                          </div>
                         </div>
                       ) : (
-                        <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded" />
+                        <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded-xl shadow-lg border-2 border-purple-100 hover:border-purple-300 transition-all duration-200" />
                       )}
                     </td>
                     <td className="px-6 py-4">
@@ -220,19 +268,19 @@ export default function AdminPanel() {
                     <td className="px-6 py-4">
                       {editingId === product.id ? (
                         <div className="flex gap-2">
-                          <button onClick={saveEdit} className="text-green-600 hover:text-green-800">
+                          <button onClick={saveEdit} className="p-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 transform hover:scale-110 transition-all duration-200 shadow-lg">
                             <Save className="w-4 h-4" />
                           </button>
-                          <button onClick={cancelEdit} className="text-red-600 hover:text-red-800">
+                          <button onClick={cancelEdit} className="p-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:from-red-600 hover:to-pink-600 transform hover:scale-110 transition-all duration-200 shadow-lg">
                             <X className="w-4 h-4" />
                           </button>
                         </div>
                       ) : (
                         <div className="flex gap-2">
-                          <button onClick={() => startEdit(product)} className="text-blue-600 hover:text-blue-800">
+                          <button onClick={() => startEdit(product)} className="p-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transform hover:scale-110 transition-all duration-200 shadow-lg">
                             <Edit className="w-4 h-4" />
                           </button>
-                          <button onClick={() => handleDelete(product.id)} className="text-red-600 hover:text-red-800">
+                          <button onClick={() => handleDelete(product.id)} className="p-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:from-red-600 hover:to-pink-600 transform hover:scale-110 transition-all duration-200 shadow-lg">
                             <X className="w-4 h-4" />
                           </button>
                         </div>
@@ -246,9 +294,19 @@ export default function AdminPanel() {
         </div>
 
         {editingId && (
-          <div className="mt-6 bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-medium mb-4">All fields are editable in the table above</h3>
-            <p className="text-gray-600">Click Save to confirm changes or Cancel to discard.</p>
+          <div className="mt-8 bg-gradient-to-r from-purple-500 to-pink-500 p-1 rounded-2xl shadow-2xl">
+            <div className="bg-white rounded-xl p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                  <Edit className="w-5 h-5 text-white" />
+                </div>
+                <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Editing Mode Active</h3>
+              </div>
+              <p className="text-gray-600 flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                All fields are editable in the table above. Click Save to confirm changes or Cancel to discard.
+              </p>
+            </div>
           </div>
         )}
       </div>
