@@ -171,14 +171,6 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                 
                 <button
                   onClick={handleAddToCart}
-                  className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white py-4 px-8 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
-                >
-                  <ShoppingBag className="w-6 h-6" />
-                  Proceed to Checkout
-                </button>
-                
-                <button
-                  onClick={handleAddToCart}
                   className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white py-4 px-8 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
                 >
                   <ShoppingBag className="w-6 h-6" />

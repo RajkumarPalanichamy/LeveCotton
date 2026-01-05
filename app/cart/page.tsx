@@ -42,7 +42,7 @@ export default function Cart() {
     });
 
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/919363499905?text=${encodedMessage}`;
+    const whatsappUrl = `https://wa.me/919345868005?text=${encodedMessage}`;
     
     clearCart();
     window.open(whatsappUrl, '_blank');
@@ -140,7 +140,7 @@ export default function Cart() {
               </div>
               <button
                 onClick={handleWhatsAppCheckout}
-                className="w-full" size="lg"
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white py-4 px-8 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
               >
                 Proceed to Checkout
               </button>
