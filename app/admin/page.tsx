@@ -113,6 +113,7 @@ export default function AdminPanel() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Color</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fabric</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
               </thead>
@@ -120,7 +121,36 @@ export default function AdminPanel() {
                 {products.map((product) => (
                   <tr key={product.id}>
                     <td className="px-6 py-4">
-                      <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded" />
+                      {editingId === product.id ? (
+                        <div className="space-y-2">
+                          <input
+                            type="text"
+                            value={editForm.image}
+                            onChange={(e) => setEditForm(prev => ({ ...prev, image: e.target.value }))}
+                            className="w-full p-1 border rounded text-xs"
+                            placeholder="/products/1.jpg"
+                          />
+                          <div className="flex items-center gap-1">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                              id={`image-upload-${product.id}`}
+                            />
+                            <label
+                              htmlFor={`image-upload-${product.id}`}
+                              className="flex items-center gap-1 px-2 py-1 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600 text-xs"
+                            >
+                              <Upload className="w-3 h-3" />
+                              {uploading ? 'Uploading...' : 'Upload'}
+                            </label>
+                          </div>
+                          <img src={editForm.image} alt="Preview" className="w-12 h-12 object-cover rounded" />
+                        </div>
+                      ) : (
+                        <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded" />
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       {editingId === product.id ? (
@@ -176,14 +206,15 @@ export default function AdminPanel() {
                     </td>
                     <td className="px-6 py-4">
                       {editingId === product.id ? (
-                        <input
-                          type="text"
-                          value={editForm.fabric}
-                          onChange={(e) => setEditForm(prev => ({ ...prev, fabric: e.target.value }))}
-                          className="w-full p-2 border rounded"
+                        <textarea
+                          value={editForm.description}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                          className="w-full p-2 border rounded text-xs"
+                          rows={2}
+                          placeholder="Product description"
                         />
                       ) : (
-                        <div className="text-sm text-gray-900">{product.fabric}</div>
+                        <div className="text-sm text-gray-900 max-w-xs truncate">{product.description}</div>
                       )}
                     </td>
                     <td className="px-6 py-4">
@@ -216,49 +247,8 @@ export default function AdminPanel() {
 
         {editingId && (
           <div className="mt-6 bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-medium mb-4">Edit Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea
-                  value={editForm.description}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full p-2 border rounded"
-                  rows={3}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Image</label>
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    value={editForm.image}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, image: e.target.value }))}
-                    className="w-full p-2 border rounded"
-                    placeholder="/products/1.jpg"
-                  />
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                      id="image-upload"
-                    />
-                    <label
-                      htmlFor="image-upload"
-                      className="flex items-center gap-2 px-3 py-2 bg-blue-500 text-white rounded cursor-pointer hover:bg-blue-600"
-                    >
-                      <Upload className="w-4 h-4" />
-                      {uploading ? 'Uploading...' : 'Upload Image'}
-                    </label>
-                  </div>
-                  {editForm.image && (
-                    <img src={editForm.image} alt="Preview" className="w-20 h-20 object-cover rounded" />
-                  )}
-                </div>
-              </div>
-            </div>
+            <h3 className="text-lg font-medium mb-4">All fields are editable in the table above</h3>
+            <p className="text-gray-600">Click Save to confirm changes or Cancel to discard.</p>
           </div>
         )}
       </div>
