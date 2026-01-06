@@ -106,7 +106,7 @@ export default function BestSellers() {
           <p className="text-gray-600">Our most popular items</p>
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex flex-col md:flex-row gap-8">
           <ProductFilters
             showFilters={showFilters}
             setShowFilters={setShowFilters}

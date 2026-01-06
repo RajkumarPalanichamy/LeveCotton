@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const filter = searchParams.get('filter');
   const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '12');
+  const limit = parseInt(searchParams.get('limit') || '70');
   
   let filteredProducts = productData;
   

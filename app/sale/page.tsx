@@ -106,7 +106,7 @@ export default function Sale() {
           <p className="text-gray-600">Amazing deals and discounts</p>
         </div>
 
-        <div className="flex gap-8">
+        <div className="flex flex-col md:flex-row gap-8">
           <ProductFilters
             showFilters={showFilters}
             setShowFilters={setShowFilters}

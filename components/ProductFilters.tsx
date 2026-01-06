@@ -43,13 +43,14 @@ export const ProductFilters = ({
       {/* Mobile Filter Toggle */}
       <button
         onClick={() => setShowFilters(!showFilters)}
-        className="lg:hidden fixed bottom-4 right-4 z-50 bg-black text-white p-3 rounded-full shadow-lg"
+        className="md:hidden mb-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
       >
-        <Filter className="w-5 h-5" />
+        <Filter className="w-4 h-4" />
+        Filters
       </button>
 
       {/* Filters Sidebar */}
-      <div className={`${showFilters ? 'block' : 'hidden'} lg:block w-64 flex-shrink-0`}>
+      <div className={`${showFilters ? 'block' : 'hidden'} md:block w-full md:w-64 flex-shrink-0 mb-6 md:mb-0`}>
         <div className="bg-white p-6 rounded-lg shadow-sm border sticky top-4">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-medium">Filters</h3>
