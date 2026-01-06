@@ -3,12 +3,13 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Providers } from "@/components/providers";
 import { Footer } from "@/components/Footer";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { InstagramButton } from "@/components/InstagramButton";
 import "./globals.css";
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Leve Cotton',
-  description: 'Leve Cotton',
+  title: 'Leve Cottons',
+  description: 'Leve Cottons - Where tradition meets trend',
 };
 
 export default function RootLayout({
@@ -24,6 +25,7 @@ export default function RootLayout({
           <Sonner />
           {children}
           <Footer />
+          <InstagramButton />
           <WhatsAppButton />
         </Providers>
       </body>
