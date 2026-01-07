@@ -1,15 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Heart, User, ShoppingBag, Menu, X } from 'lucide-react';
+import { User, ShoppingBag, Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { useCart } from '@/hooks/useCart';
-import { useWishlist } from '@/hooks/useWishlist';
 import { Button } from '@/components/ui/button';
 
 export function Navbar() {
   const { cart } = useCart();
-  const { wishlistCount } = useWishlist();
   const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -48,16 +46,6 @@ export function Navbar() {
 
           {/* Right: Icons */}
           <div className="flex items-center gap-2 md:gap-4">
-            <Link href="/wishlist" className="relative">
-              <Button variant="ghost" size="sm" className="p-2">
-                <Heart className="w-5 h-5" style={{ color: '#6D3B2C' }} />
-                {wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                    {wishlistCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
             <Link href="/cart" className="relative">
               <Button variant="ghost" size="sm" className="p-2">
                 <ShoppingBag className="w-5 h-5" style={{ color: '#6D3B2C' }} />
@@ -104,19 +92,6 @@ export function Navbar() {
       {isMenuOpen && (
         <div className="md:hidden border-t bg-white" style={{ borderColor: '#E5D5C8' }}>
           <div className="container mx-auto px-4 py-4">
-            {/* Quick Actions */}
-            <div className="flex justify-around mb-4 pb-4 border-b" style={{ borderColor: '#E5D5C8' }}>
-              <Link href="/wishlist" onClick={() => setIsMenuOpen(false)}>
-                <Button variant="ghost" size="sm" className="flex flex-col items-center p-2">
-                  <Heart className="w-6 h-6 mb-1" style={{ color: '#6D3B2C' }} />
-                  <span className="text-xs">Wishlist</span>
-                  {wishlistCount > 0 && (
-                    <span className="text-xs text-red-500">({wishlistCount})</span>
-                  )}
-                </Button>
-              </Link>
-            </div>
-            
             {/* Categories */}
             <div className="grid grid-cols-2 gap-2">
               {categories.map(category => (
