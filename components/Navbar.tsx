@@ -14,7 +14,7 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const categories = [
-    'NEW ARRIVALS', 'COLLECTIONS', 'BEST SELLERS', 'VIDEOS', 'SALE'
+    'NEW ARRIVALS', 'COLLECTIONS', 'BEST SELLERS', 'VIDEOS'
   ];
 
   return (

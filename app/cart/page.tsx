@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useCart } from '@/hooks/useCart';
 import { useProducts } from '@/hooks/useProducts';
 import { Navbar } from '@/components/Navbar';
@@ -12,8 +13,17 @@ export default function Cart() {
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
   const { products } = useProducts();
 
+  // Fetch all products to get product codes
+  const [allProducts, setAllProducts] = useState([]);
+  
+  useEffect(() => {
+    fetch('/api/products?limit=70')
+      .then(res => res.json())
+      .then(data => setAllProducts(data.products));
+  }, []);
+
   const cartItems = cart.map(item => {
-    const product = products.find(p => p.id === item.productId);
+    const product = allProducts.find(p => p.id === item.productId) || products.find(p => p.id === item.productId);
     return { ...item, product };
   });
 
@@ -23,23 +33,23 @@ export default function Cart() {
   );
 
   const handleWhatsAppCheckout = () => {
-    let message = `Hi LEVE COTTONS! I want to place an order:
-
-`;
+    let message = `🛍️ *NEW ORDER - LEVE COTTONS* 🛍️\n\n`;
     
     cartItems.forEach((item, index) => {
       if (item.product) {
-        message += `${index + 1}. *${item.product.name}*
-`;
-        message += `   Price: ₹${item.product.price.toLocaleString('en-IN')}
-`;
-        message += `   Quantity: ${item.quantity}
-`;
-        message += `   Subtotal: ₹${(item.product.price * item.quantity).toLocaleString('en-IN')}
-
-`;
+        message += `📦 *Product ${index + 1}:*\n`;
+        message += `Code: ${item.product.productCode || `LC-${item.productId}`}\n`;
+        message += `Name: ${item.product.name}\n`;
+        message += `Price: ₹${item.product.price.toLocaleString('en-IN')}\n`;
+        message += `Quantity: ${item.quantity}\n`;
+        message += `Subtotal: ₹${(item.product.price * item.quantity).toLocaleString('en-IN')}\n\n`;
       }
     });
+    
+    message += `💳 *Total Amount: ₹${total.toLocaleString('en-IN')}*\n\n`;
+    message += `📅 *Order Date: ${new Date().toLocaleDateString('en-IN')}*\n`;
+    message += `🕐 *Order Time: ${new Date().toLocaleTimeString('en-IN')}*\n\n`;
+    message += `Please confirm this order and share delivery details.`;
 
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/919345868005?text=${encodedMessage}`;

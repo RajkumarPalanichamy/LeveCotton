@@ -6,9 +6,11 @@ import { Navbar } from '@/components/Navbar';
 import { Edit, Save, X, Upload } from 'lucide-react';
 
 export default function AdminPanel() {
-  const { products, loading, updateProduct, deleteProduct } = useProducts();
+  const { products, loading, updateProduct } = useProducts();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [searchCode, setSearchCode] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState(products);
   const [editForm, setEditForm] = useState({
     name: '',
     price: 0,
@@ -18,6 +20,14 @@ export default function AdminPanel() {
     fabric: '',
     image: ''
   });
+
+  useEffect(() => {
+    const filtered = products.filter(product => 
+      product.productCode?.toLowerCase().includes(searchCode.toLowerCase()) ||
+      product.name.toLowerCase().includes(searchCode.toLowerCase())
+    );
+    setFilteredProducts(filtered);
+  }, [products, searchCode]);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -72,12 +82,6 @@ export default function AdminPanel() {
     setEditForm({ name: '', price: 0, category: '', description: '', color: '', fabric: '', image: '' });
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this product?')) {
-      await deleteProduct(id);
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -114,12 +118,28 @@ export default function AdminPanel() {
               </div>
               Product Management
             </h2>
-            <p className="text-purple-100 mt-2">Total Products: {products.length}</p>
+            <p className="text-purple-100 mt-2">Total Products: {filteredProducts.length}</p>
+            
+            {/* Search Bar */}
+            <div className="mt-4">
+              <input
+                type="text"
+                placeholder="Search by product code or name..."
+                value={searchCode}
+                onChange={(e) => setSearchCode(e.target.value)}
+                className="w-full max-w-md px-4 py-2 rounded-lg border-0 bg-white/20 text-white placeholder-purple-200 focus:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50"
+              />
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-purple-200">
+                    <div className="flex items-center gap-2">
+                      <span className="text-purple-600">💼</span> Code
+                    </div>
+                  </th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-purple-200">
                     <div className="flex items-center gap-2">
                       <span className="text-purple-600">🖼️</span> Image
@@ -163,8 +183,13 @@ export default function AdminPanel() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {products.map((product, index) => (
+                {filteredProducts.map((product, index) => (
                   <tr key={product.id} className={`hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-mono text-purple-600 bg-purple-50 px-2 py-1 rounded">
+                        {product.productCode || `LC-${product.id.slice(-3)}`}
+                      </div>
+                    </td>
                     <td className="px-6 py-4">
                       {editingId === product.id ? (
                         <div className="space-y-2">
@@ -279,9 +304,6 @@ export default function AdminPanel() {
                         <div className="flex gap-2">
                           <button onClick={() => startEdit(product)} className="p-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transform hover:scale-110 transition-all duration-200 shadow-lg">
                             <Edit className="w-4 h-4" />
-                          </button>
-                          <button onClick={() => handleDelete(product.id)} className="p-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:from-red-600 hover:to-pink-600 transform hover:scale-110 transition-all duration-200 shadow-lg">
-                            <X className="w-4 h-4" />
                           </button>
                         </div>
                       )}

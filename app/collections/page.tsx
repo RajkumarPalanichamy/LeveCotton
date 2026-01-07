@@ -9,13 +9,32 @@ import { useWishlist } from '@/hooks/useWishlist';
 import { ProductFilters } from '@/components/ProductFilters';
 import Link from 'next/link';
 
+interface Product {
+  id: string;
+  productCode: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  discount?: number;
+  image: string;
+  description: string;
+  category: string;
+  collection: string;
+  color: string;
+  fabric: string;
+  inStock: boolean;
+}
+
 export default function Collections() {
-  const { products, loading, error } = useProducts('collections');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
   const { toggleWishlist, isInWishlist } = useWishlist();
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({ colors: [], priceRange: '', fabrics: [] });
-  const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
+  const [showCartPopup, setShowCartPopup] = useState(false);
+  const [addedProduct, setAddedProduct] = useState<Product | null>(null);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
 
   const colors = ['Red', 'Blue', 'Green', 'Pink', 'Black', 'White', 'Yellow', 'Purple', 'Maroon', 'Teal'];
   const fabrics = ['Cotton', 'Silk', 'Georgette', 'Rayon'];
@@ -25,6 +44,22 @@ export default function Collections() {
     { label: '₹20,000 - ₹30,000', value: '20000-30000' },
     { label: 'Above ₹30,000', value: '30000+' }
   ];
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('/api/products?limit=70');
+      const data = await response.json();
+      setProducts(data.products);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     let filtered = products;
@@ -45,7 +80,7 @@ export default function Collections() {
     setFilteredProducts(filtered);
   }, [filters, products]);
 
-  const handleAddToCart = (product: any) => {
+  const handleAddToCart = (product: Product) => {
     addToCart({
       productId: product.id,
       variantId: 'default',
@@ -54,9 +89,12 @@ export default function Collections() {
       image: product.image,
       quantity: 1
     });
+    setAddedProduct(product);
+    setShowCartPopup(true);
+    setTimeout(() => setShowCartPopup(false), 2000);
   };
 
-  const handleToggleWishlist = (product: any) => {
+  const handleToggleWishlist = (product: Product) => {
     toggleWishlist({
       id: product.id,
       name: product.name,
@@ -73,21 +111,7 @@ export default function Collections() {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-3xl md:text-4xl font-serif text-gray-900 mb-4">Collections</h1>
-            <p className="text-gray-600">Loading products...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Navbar />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <h1 className="text-3xl md:text-4xl font-serif text-gray-900 mb-4">Collections</h1>
-            <p className="text-red-600">Error: {error}</p>
+            <p className="text-gray-600">Loading all 70 products...</p>
           </div>
         </div>
       </div>
@@ -102,8 +126,8 @@ export default function Collections() {
       
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-serif text-gray-900 mb-4">Collections</h1>
-          <p className="text-gray-600">Curated fashion collections</p>
+          <h1 className="text-3xl md:text-4xl font-serif text-gray-900 mb-4">All Collections</h1>
+          <p className="text-gray-600">All 70 products with unique codes</p>
         </div>
 
         <div className="flex flex-col md:flex-row gap-8">
@@ -145,6 +169,9 @@ export default function Collections() {
                 </div>
               </div>
               <div className="text-center">
+                <div className="text-xs text-gray-500 font-mono mb-1">
+                  {product.productCode}
+                </div>
                 <Link href={`/product/${product.id}`}>
                   <h3 className="font-medium text-gray-900 hover:text-gray-700 cursor-pointer mb-2">{product.name}</h3>
                 </Link>
@@ -156,6 +183,18 @@ export default function Collections() {
           </div>
         </div>
       </div>
+      
+      {/* Cart Popup */}
+      {showCartPopup && addedProduct && (
+        <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-bounce">
+          <div className="flex items-center gap-2">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="font-medium">{addedProduct.name} added to cart!</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

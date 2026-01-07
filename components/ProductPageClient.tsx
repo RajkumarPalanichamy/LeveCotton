@@ -51,7 +51,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
   };
 
   const handleBuyNow = () => {
-    const message = `Hi LEVE COTTONS! I want to buy this product:\n\n*${product.name}*\nPrice: ₹${product.price.toLocaleString('en-IN')}\n${selectedSize ? `Size: ${selectedSize}` : ''}\n${selectedColor ? `Color: ${selectedColor}` : ''}`;
+    const message = `Hi LEVE COTTONS! I want to buy this product:\n\n*${product.name}*\nPrice: ₹${product.price.toLocaleString('en-IN')}\n${selectedSize ? `Size: ${selectedSize}` : ''}\n${selectedColor ? `Color: ${selectedColor}` : ''}\n\nProduct Image: ${window.location.origin}${product.image}\n\nPlease confirm availability and delivery details.`;
 
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/919345868005?text=${encodedMessage}`, '_blank');
