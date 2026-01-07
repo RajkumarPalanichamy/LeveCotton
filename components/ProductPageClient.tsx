@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { ShoppingBag, Heart } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
-import { useWishlist } from '@/hooks/useWishlist';
 
 interface Product {
   id: string;
@@ -25,7 +24,6 @@ interface ProductPageClientProps {
 
 export default function ProductPageClient({ product }: ProductPageClientProps) {
   const { addToCart } = useCart();
-  const { toggleWishlist, isInWishlist } = useWishlist();
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
 
@@ -37,16 +35,6 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
       price: product.price,
       image: product.image,
       quantity: 1
-    });
-  };
-
-  const handleToggleWishlist = () => {
-    toggleWishlist({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      images: [product.image],
-      category: product.category
     });
   };
 
@@ -80,18 +68,6 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                 alt={product.name}
                 className="w-full h-full object-cover rounded-xl"
               />
-              <div className="absolute top-6 right-6">
-                <button
-                  onClick={handleToggleWishlist}
-                  className={`w-12 h-12 rounded-full shadow-lg backdrop-blur-sm transition-all duration-200 flex items-center justify-center ${
-                    isInWishlist(product.id)
-                      ? 'bg-red-500 text-white'
-                      : 'bg-white/80 text-gray-700 hover:bg-white'
-                  }`}
-                >
-                  <Heart className={`w-6 h-6 ${isInWishlist(product.id) ? 'fill-white' : ''}`} />
-                </button>
-              </div>
             </div>
             {product.images && product.images.length > 1 && (
               <div className="grid grid-cols-4 gap-3">
