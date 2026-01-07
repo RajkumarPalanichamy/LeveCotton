@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Navbar } from '@/components/Navbar';
-import { useProducts } from '@/hooks/useProducts';
-import { ShoppingBag, Heart } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
-import { useWishlist } from '@/hooks/useWishlist';
 import { ProductFilters } from '@/components/ProductFilters';
 import Link from 'next/link';
 
@@ -29,7 +27,6 @@ export default function Collections() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
-  const { toggleWishlist, isInWishlist } = useWishlist();
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({ colors: [], priceRange: '', fabrics: [] });
   const [showCartPopup, setShowCartPopup] = useState(false);
@@ -91,17 +88,7 @@ export default function Collections() {
     });
     setAddedProduct(product);
     setShowCartPopup(true);
-    setTimeout(() => setShowCartPopup(false), 2000);
-  };
-
-  const handleToggleWishlist = (product: Product) => {
-    toggleWishlist({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      images: [product.image],
-      category: product.category
-    });
+    setTimeout(() => setShowCartPopup(false), 3000);
   };
 
   if (loading) {
@@ -153,18 +140,13 @@ export default function Collections() {
                     className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
                   />
                 </Link>
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <button
                     onClick={() => handleAddToCart(product)}
-                    className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-50 transition-colors"
+                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center gap-2 shadow-lg hover:from-blue-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-200 text-sm font-medium"
                   >
-                    <ShoppingBag className="w-5 h-5 text-gray-700" />
-                  </button>
-                  <button
-                    onClick={() => handleToggleWishlist(product)}
-                    className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? 'text-red-500 fill-red-500' : 'text-gray-700'}`} />
+                    <ShoppingBag className="w-4 h-4" />
+                    Add to Cart
                   </button>
                 </div>
               </div>
@@ -184,14 +166,41 @@ export default function Collections() {
         </div>
       </div>
       
-      {/* Cart Popup */}
+      {/* Enhanced Cart Popup */}
       {showCartPopup && addedProduct && (
-        <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-bounce">
-          <div className="flex items-center gap-2">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-            <span className="font-medium">{addedProduct.name} added to cart!</span>
+        <div className="fixed top-4 right-4 z-50 bg-gradient-to-r from-green-500 to-emerald-500 text-white p-4 rounded-xl shadow-2xl animate-bounce max-w-sm">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0">
+              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm">Added to Cart!</p>
+              <p className="text-xs text-green-100 truncate">{addedProduct.name}</p>
+              <p className="text-xs text-green-100">₹{addedProduct.price.toLocaleString()}</p>
+            </div>
+            <button 
+              onClick={() => setShowCartPopup(false)}
+              className="text-white/80 hover:text-white"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div className="mt-3 flex gap-2">
+            <Link href="/cart" className="flex-1 bg-white/20 hover:bg-white/30 text-center py-2 px-3 rounded-lg text-xs font-medium transition-colors">
+              View Cart
+            </Link>
+            <button 
+              onClick={() => setShowCartPopup(false)}
+              className="flex-1 bg-white/10 hover:bg-white/20 text-center py-2 px-3 rounded-lg text-xs font-medium transition-colors"
+            >
+              Continue Shopping
+            </button>
           </div>
         </div>
       )}
