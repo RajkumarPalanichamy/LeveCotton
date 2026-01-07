@@ -101,6 +101,39 @@ export default function Home() {
 
       <NewArrivals />
       
+      {/* Featured Categories */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl md:text-4xl font-serif text-center text-gray-900 mb-12">Shop by Category</h2>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Link href="/new-arrivals" className="group cursor-pointer">
+              <div className="aspect-square overflow-hidden rounded-lg mb-4">
+                <img src="/products/1.jpg" alt="New Arrival Sarees" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              </div>
+              <h3 className="text-xl font-medium text-center">New Arrival Sarees</h3>
+            </Link>
+            <Link href="/best-sellers" className="group cursor-pointer">
+              <div className="aspect-square overflow-hidden rounded-lg mb-4">
+                <img src="/products/7.jpg" alt="Best Seller Sarees" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              </div>
+              <h3 className="text-xl font-medium text-center">Best Seller Sarees</h3>
+            </Link>
+            <Link href="/collections" className="group cursor-pointer">
+              <div className="aspect-square overflow-hidden rounded-lg mb-4">
+                <img src="/products/13.jpg" alt="Designer Collections" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              </div>
+              <h3 className="text-xl font-medium text-center">Designer Collections</h3>
+            </Link>
+            <Link href="/sale" className="group cursor-pointer">
+              <div className="aspect-square overflow-hidden rounded-lg mb-4">
+                <img src="/products/19.jpg" alt="Sale Sarees" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              </div>
+              <h3 className="text-xl font-medium text-center">Sale Sarees</h3>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Our Story Section */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
@@ -132,39 +165,6 @@ export default function Home() {
                 <p className="text-gray-600">Dedicated to making every customer feel beautiful and confident</p>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Categories */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-serif text-center text-gray-900 mb-12">Shop by Category</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Link href="/new-arrivals" className="group cursor-pointer">
-              <div className="aspect-square overflow-hidden rounded-lg mb-4">
-                <img src="/products/1.jpg" alt="New Arrival Sarees" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-              </div>
-              <h3 className="text-xl font-medium text-center">New Arrival Sarees</h3>
-            </Link>
-            <Link href="/best-sellers" className="group cursor-pointer">
-              <div className="aspect-square overflow-hidden rounded-lg mb-4">
-                <img src="/products/7.jpg" alt="Best Seller Sarees" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-              </div>
-              <h3 className="text-xl font-medium text-center">Best Seller Sarees</h3>
-            </Link>
-            <Link href="/collections" className="group cursor-pointer">
-              <div className="aspect-square overflow-hidden rounded-lg mb-4">
-                <img src="/products/13.jpg" alt="Designer Collections" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-              </div>
-              <h3 className="text-xl font-medium text-center">Designer Collections</h3>
-            </Link>
-            <Link href="/sale" className="group cursor-pointer">
-              <div className="aspect-square overflow-hidden rounded-lg mb-4">
-                <img src="/products/19.jpg" alt="Sale Sarees" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-              </div>
-              <h3 className="text-xl font-medium text-center">Sale Sarees</h3>
-            </Link>
           </div>
         </div>
       </section>
