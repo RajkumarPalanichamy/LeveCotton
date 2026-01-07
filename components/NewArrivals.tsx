@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { ShoppingBag, Heart, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShoppingBag, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
-import { useWishlist } from '@/hooks/useWishlist';
 import { useProducts } from '@/hooks/useProducts';
 import Link from 'next/link';
 
@@ -13,7 +12,6 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const { addToCart } = useCart();
-  const { toggleWishlist, isInWishlist } = useWishlist();
 
   const handleAddToCart = () => {
     addToCart({
@@ -26,16 +24,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
     });
   };
 
-  const handleToggleWishlist = () => {
-    toggleWishlist({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      images: [product.image],
-      category: product.category || 'New Arrival'
-    });
-  };
-
   return (
     <div className="flex-shrink-0 w-48 sm:w-56 md:w-64 lg:w-72">
       <Link href={`/product/${product.id}`}>
@@ -45,24 +33,16 @@ const ProductCard = ({ product }: ProductCardProps) => {
             alt={product.name}
             className="w-full h-64 sm:h-72 md:h-80 object-cover group-hover:scale-110 transition-transform duration-500"
           />
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             <button
               onClick={(e) => {
                 e.preventDefault();
                 handleAddToCart();
               }}
-              className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-50 transition-colors touch-manipulation"
+              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center gap-2 shadow-lg hover:from-blue-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-200 text-sm font-medium"
             >
-              <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                handleToggleWishlist();
-              }}
-              className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-50 transition-colors touch-manipulation"
-            >
-              <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isInWishlist(product.id) ? 'text-red-500 fill-red-500' : 'text-gray-700'}`} />
+              <ShoppingBag className="w-4 h-4" />
+              Add to Cart
             </button>
           </div>
         </div>

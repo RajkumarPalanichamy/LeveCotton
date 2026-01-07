@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ShoppingBag, Heart } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
-import { useWishlist } from '@/hooks/useWishlist';
 import { useProducts } from '@/hooks/useProducts';
 import { Navbar } from '@/components/Navbar';
 import { ProductFilters } from '@/components/ProductFilters';
@@ -12,7 +11,6 @@ import Link from 'next/link';
 export default function NewArrivals() {
   const { products, loading, error } = useProducts('new-arrivals');
   const { addToCart } = useCart();
-  const { toggleWishlist, isInWishlist } = useWishlist();
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({ colors: [], priceRange: '', fabrics: [] });
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
@@ -55,16 +53,6 @@ export default function NewArrivals() {
       price: product.price,
       image: product.image,
       quantity: 1
-    });
-  };
-
-  const handleToggleWishlist = (product: any) => {
-    toggleWishlist({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      images: [product.image],
-      category: product.category
     });
   };
 
@@ -132,18 +120,13 @@ export default function NewArrivals() {
                     className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
                   />
                 </Link>
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <button
                     onClick={() => handleAddToCart(product)}
-                    className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-50 transition-colors"
+                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center gap-2 shadow-lg hover:from-blue-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-200 text-sm font-medium"
                   >
-                    <ShoppingBag className="w-5 h-5 text-gray-700" />
-                  </button>
-                  <button
-                    onClick={() => handleToggleWishlist(product)}
-                    className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-50 transition-colors"
-                  >
-                    <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? 'text-red-500 fill-red-500' : 'text-gray-700'}`} />
+                    <ShoppingBag className="w-4 h-4" />
+                    Add to Cart
                   </button>
                 </div>
               </div>
