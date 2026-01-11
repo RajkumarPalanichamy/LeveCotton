@@ -18,7 +18,8 @@ export default function AdminPanel() {
     description: '',
     color: '',
     fabric: '',
-    image: ''
+    image: '',
+    productCode: ''
   });
 
   useEffect(() => {
@@ -65,7 +66,8 @@ export default function AdminPanel() {
       description: product.description,
       color: product.color || '',
       fabric: product.fabric || '',
-      image: product.image || ''
+      image: product.image || '',
+      productCode: product.productCode || `LC-${product.id.slice(-3)}`
     });
   };
 
@@ -73,13 +75,13 @@ export default function AdminPanel() {
     const success = await updateProduct(editingId!, editForm);
     if (success) {
       setEditingId(null);
-      setEditForm({ name: '', price: 0, category: '', description: '', color: '', fabric: '', image: '' });
+      setEditForm({ name: '', price: 0, category: '', description: '', color: '', fabric: '', image: '', productCode: '' });
     }
   };
 
   const cancelEdit = () => {
     setEditingId(null);
-    setEditForm({ name: '', price: 0, category: '', description: '', color: '', fabric: '', image: '' });
+    setEditForm({ name: '', price: 0, category: '', description: '', color: '', fabric: '', image: '', productCode: '' });
   };
 
   if (loading) {
@@ -152,6 +154,13 @@ export default function AdminPanel() {
                       <div className="space-y-3">
                         <input
                           type="text"
+                          value={editForm.productCode}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, productCode: e.target.value }))}
+                          className="w-full p-2 border rounded text-sm"
+                          placeholder="Product code"
+                        />
+                        <input
+                          type="text"
                           value={editForm.name}
                           onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
                           className="w-full p-2 border rounded text-sm"
@@ -197,6 +206,20 @@ export default function AdminPanel() {
                           rows={2}
                           placeholder="Description"
                         />
+                        <div className="space-y-2">
+                          <label className="block text-sm font-medium text-gray-700">Product Image</label>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="w-full p-2 border rounded text-sm"
+                            disabled={uploading}
+                          />
+                          {uploading && <p className="text-sm text-blue-600">Uploading...</p>}
+                          {editForm.image && (
+                            <img src={editForm.image} alt="Preview" className="w-20 h-20 object-cover rounded" />
+                          )}
+                        </div>
                         <div className="flex gap-2">
                           <button onClick={saveEdit} className="flex-1 p-2 bg-green-500 text-white rounded text-sm">
                             Save
@@ -268,9 +291,18 @@ export default function AdminPanel() {
                   {filteredProducts.map((product, index) => (
                     <tr key={product.id} className={`hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 transition-all duration-200 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
                       <td className="px-3 lg:px-6 py-4">
-                        <div className="text-xs font-mono text-purple-600 bg-purple-50 px-2 py-1 rounded">
-                          {product.productCode || `LC-${product.id.slice(-3)}`}
-                        </div>
+                        {editingId === product.id ? (
+                          <input
+                            type="text"
+                            value={editForm.productCode}
+                            onChange={(e) => setEditForm(prev => ({ ...prev, productCode: e.target.value }))}
+                            className="w-full p-2 border rounded text-sm"
+                          />
+                        ) : (
+                          <div className="text-xs font-mono text-purple-600 bg-purple-50 px-2 py-1 rounded">
+                            {product.productCode || `LC-${product.id.slice(-3)}`}
+                          </div>
+                        )}
                       </td>
                       <td className="px-3 lg:px-6 py-4">
                         <img src={product.image} alt={product.name} className="w-12 h-12 lg:w-16 lg:h-16 object-cover rounded-xl shadow-lg border-2 border-purple-100" />
@@ -332,6 +364,14 @@ export default function AdminPanel() {
                               className="w-full p-1 border rounded text-xs"
                               placeholder="Fabric"
                             />
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="w-full p-1 border rounded text-xs"
+                              disabled={uploading}
+                            />
+                            {uploading && <p className="text-xs text-blue-600">Uploading...</p>}
                           </div>
                         ) : (
                           <div className="text-xs text-gray-600">
