@@ -282,6 +282,11 @@ export default function AdminPanel() {
                     </th>
                     <th className="px-3 lg:px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-purple-200">
                       <div className="flex items-center gap-2">
+                        <span className="text-purple-600">📝</span> Description
+                      </div>
+                    </th>
+                    <th className="px-3 lg:px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-purple-200">
+                      <div className="flex items-center gap-2">
                         <span className="text-purple-600">⚙️</span> Actions
                       </div>
                     </th>
@@ -378,6 +383,19 @@ export default function AdminPanel() {
                             <div>{product.color}</div>
                             <div>{product.fabric}</div>
                           </div>
+                        )}
+                      </td>
+                      <td className="px-3 lg:px-6 py-4">
+                        {editingId === product.id ? (
+                          <textarea
+                            value={editForm.description}
+                            onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                            className="w-full p-2 border rounded text-xs"
+                            rows={3}
+                            placeholder="Description"
+                          />
+                        ) : (
+                          <div className="text-xs text-gray-600 max-w-xs truncate">{product.description}</div>
                         )}
                       </td>
                       <td className="px-3 lg:px-6 py-4">
