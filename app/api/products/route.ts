@@ -1,7 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { writeFile, readFile } from 'fs/promises';
+import path from 'path';
 
-// 70 Products organized by categories with unique product codes
-let productData = [
+const PRODUCTS_FILE = path.join(process.cwd(), 'lib', 'products.json');
+
+// Load products from file
+async function loadProducts() {
+  try {
+    const data = await readFile(PRODUCTS_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    // If file doesn't exist, return default products
+    return getDefaultProducts();
+  }
+}
+
+// Save products to file
+async function saveProducts(products: any[]) {
+  try {
+    await writeFile(PRODUCTS_FILE, JSON.stringify(products, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Failed to save products:', error);
+    return false;
+  }
+}
+
+function getDefaultProducts() {
+  return [
   // New Arrivals (20 products)
   { "id": "prod_1", "productCode": "LC-NA-001", "name": "Festival Saree", "price": 2220, "image": "/products/1.jpg", "description": "Beautiful chiffon saree with intricate design and premium quality finish", "category": "new-arrivals", "collection": "Festival Collection", "color": "Yellow", "fabric": "Crepe", "inStock": true },
   { "id": "prod_5", "productCode": "LC-NA-002", "name": "Embroidered Silk Saree", "price": 6658, "image": "/products/5.jpg", "description": "Beautiful georgette saree with intricate design and premium quality finish", "category": "new-arrivals", "collection": "Silk Collection", "color": "Pink", "fabric": "Georgette", "inStock": true },
@@ -80,6 +106,7 @@ let productData = [
   { "id": "prod_56", "productCode": "LC-SALE-014", "name": "Modern Fusion Saree", "price": 3578, "originalPrice": 7156, "image": "/products/56.jpg", "description": "Beautiful cotton saree with intricate design and premium quality finish", "category": "sale", "collection": "Modern Collection", "color": "Purple", "fabric": "Silk", "inStock": true, "discount": 50 },
   { "id": "prod_60", "productCode": "LC-SALE-015", "name": "Classic Handloom Saree", "price": 2009, "originalPrice": 4018, "image": "/products/60.jpg", "description": "Beautiful georgette saree with intricate design and premium quality finish", "category": "sale", "collection": "Handloom Collection", "color": "Gold", "fabric": "Georgette", "inStock": true, "discount": 50 }
 ];
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -88,6 +115,7 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '70');
   
+  const productData = await loadProducts();
   let filteredProducts = productData;
   
   // Filter by category
@@ -147,9 +175,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { action, productId, customerInfo } = await request.json();
+    const productData = await loadProducts();
     
     if (action === 'getProductForWhatsApp') {
-      const product = productData.find(p => p.id === productId);
+      const product = productData.find((p: any) => p.id === productId);
       if (!product) {
         return NextResponse.json({ error: 'Product not found' }, { status: 404 });
       }
@@ -174,7 +203,7 @@ export async function POST(request: NextRequest) {
     }
     
     if (action === 'createOrder') {
-      const product = productData.find(p => p.id === productId);
+      const product = productData.find((p: any) => p.id === productId);
       if (!product) {
         return NextResponse.json({ error: 'Product not found' }, { status: 404 });
       }
@@ -206,8 +235,10 @@ export async function POST(request: NextRequest) {
     
     // Default product creation
     const product = await request.json();
+    const productData = await loadProducts();
     const newProduct = { ...product, id: Date.now().toString() };
     productData.push(newProduct);
+    await saveProducts(productData);
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
@@ -217,10 +248,12 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const { id, ...productUpdate } = await request.json();
-    const index = productData.findIndex(p => p.id === id);
+    const productData = await loadProducts();
+    const index = productData.findIndex((p: any) => p.id === id);
     
     if (index !== -1) {
       productData[index] = { ...productData[index], ...productUpdate };
+      await saveProducts(productData);
       return NextResponse.json({ success: true });
     } else {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
@@ -233,10 +266,12 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const { id } = await request.json();
-    const index = productData.findIndex(p => p.id === id);
+    const productData = await loadProducts();
+    const index = productData.findIndex((p: any) => p.id === id);
     
     if (index !== -1) {
       productData.splice(index, 1);
+      await saveProducts(productData);
       return NextResponse.json({ success: true });
     } else {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
