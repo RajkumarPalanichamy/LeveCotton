@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/lib/mongodb';
 
+// In-memory fallback storage
+let memoryProducts: any[] = [];
+
 // Default products data
 const defaultProducts = [
   // New Arrivals (20 products)
@@ -97,20 +100,21 @@ async function getProducts() {
     
     return products;
   } catch (error) {
-    console.error('Database error:', error);
-    return defaultProducts;
+    console.error('Database connection error:', error);
+    throw error; // Re-throw to handle in calling function
   }
 }
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const filter = searchParams.get('filter');
-  const collection = searchParams.get('collection');
-  const page = parseInt(searchParams.get('page') || '1');
-  const limit = parseInt(searchParams.get('limit') || '70');
-  
-  const productData = await getProducts();
-  let filteredProducts = productData;
+  try {
+    const { searchParams } = new URL(request.url);
+    const filter = searchParams.get('filter');
+    const collection = searchParams.get('collection');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '70');
+    
+    const productData = await getProducts();
+    let filteredProducts = productData;
   
   // Filter by category
   if (filter) {
@@ -129,40 +133,47 @@ export async function GET(request: NextRequest) {
   const endIndex = startIndex + limit;
   const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
   
-  console.log(`API called with filter: ${filter}, collection: ${collection}, page: ${page}, returning ${paginatedProducts.length} products`);
-  
-  return NextResponse.json({ 
-    products: paginatedProducts,
-    total: filteredProducts.length,
-    page,
-    totalPages: Math.ceil(filteredProducts.length / limit),
-    categories: {
-      'new-arrivals': productData.filter(p => p.category === 'new-arrivals').length,
-      'best-sellers': productData.filter(p => p.category === 'best-sellers').length,
-      'collections': productData.filter(p => p.category === 'collections').length,
-      'sale': productData.filter(p => p.category === 'sale').length
-    },
-    collections: [
-      'Festival Collection',
-      'Silk Collection', 
-      'Luxury Collection',
-      'Ethnic Collection',
-      'Handloom Collection',
-      'Designer Collection',
-      'Cotton Collection',
-      'Vintage Collection',
-      'Indo-Western Collection',
-      'Artisan Collection',
-      'Modern Collection',
-      'Bollywood Collection',
-      'Heritage Collection',
-      'Royal Collection',
-      'Premium Collection',
-      'Contemporary Collection',
-      'Bridal Collection',
-      'Block Print Collection'
-    ]
-  });
+    console.log(`API called with filter: ${filter}, collection: ${collection}, page: ${page}, returning ${paginatedProducts.length} products`);
+    
+    return NextResponse.json({ 
+      products: paginatedProducts,
+      total: filteredProducts.length,
+      page,
+      totalPages: Math.ceil(filteredProducts.length / limit),
+      categories: {
+        'new-arrivals': productData.filter(p => p.category === 'new-arrivals').length,
+        'best-sellers': productData.filter(p => p.category === 'best-sellers').length,
+        'collections': productData.filter(p => p.category === 'collections').length,
+        'sale': productData.filter(p => p.category === 'sale').length
+      },
+      collections: [
+        'Festival Collection',
+        'Silk Collection', 
+        'Luxury Collection',
+        'Ethnic Collection',
+        'Handloom Collection',
+        'Designer Collection',
+        'Cotton Collection',
+        'Vintage Collection',
+        'Indo-Western Collection',
+        'Artisan Collection',
+        'Modern Collection',
+        'Bollywood Collection',
+        'Heritage Collection',
+        'Royal Collection',
+        'Premium Collection',
+        'Contemporary Collection',
+        'Bridal Collection',
+        'Block Print Collection'
+      ]
+    });
+  } catch (error) {
+    console.error('GET products error:', error);
+    return NextResponse.json({ 
+      error: 'Failed to fetch products',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
 }
 
 // Get product by ID for WhatsApp sharing
@@ -245,7 +256,10 @@ export async function PUT(request: NextRequest) {
     console.log('PUT request received:', { id, productUpdate });
     
     const client = await clientPromise;
+    console.log('MongoDB client connected');
+    
     const db = client.db('levecotton');
+    console.log('Database selected: levecotton');
     
     const result = await db.collection('products').updateOne(
       { id: id },
@@ -256,15 +270,18 @@ export async function PUT(request: NextRequest) {
     
     if (result.matchedCount > 0) {
       const updatedProduct = await db.collection('products').findOne({ id: id });
-      console.log('Product updated:', updatedProduct);
+      console.log('Product updated successfully:', updatedProduct);
       return NextResponse.json({ success: true, product: updatedProduct });
     } else {
       console.log('Product not found with id:', id);
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
   } catch (error) {
-    console.error('PUT error:', error);
-    return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });
+    console.error('PUT error details:', error);
+    return NextResponse.json({ 
+      error: 'Failed to update product', 
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }
 
