@@ -243,10 +243,10 @@ export async function POST(request: NextRequest) {
     
     // Default product creation
     const product = await request.json();
-    const productData = await loadProducts();
+    const allProducts = await loadProducts();
     const newProduct = { ...product, id: Date.now().toString() };
-    productData.push(newProduct);
-    await saveProducts(productData);
+    allProducts.push(newProduct);
+    await saveProducts(allProducts);
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
@@ -258,14 +258,14 @@ export async function PUT(request: NextRequest) {
     const { id, ...productUpdate } = await request.json();
     console.log('PUT request received:', { id, productUpdate });
     
-    const productData = await loadProducts();
-    const index = productData.findIndex((p: any) => p.id === id);
+    const allProducts = await loadProducts();
+    const index = allProducts.findIndex((p: any) => p.id === id);
     
     if (index !== -1) {
-      productData[index] = { ...productData[index], ...productUpdate };
-      await saveProducts(productData);
-      console.log('Product updated successfully:', productData[index]);
-      return NextResponse.json({ success: true, product: productData[index] });
+      allProducts[index] = { ...allProducts[index], ...productUpdate };
+      await saveProducts(allProducts);
+      console.log('Product updated successfully:', allProducts[index]);
+      return NextResponse.json({ success: true, product: allProducts[index] });
     } else {
       console.log('Product not found with id:', id);
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
@@ -282,12 +282,12 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const { id } = await request.json();
-    const productData = await loadProducts();
-    const index = productData.findIndex((p: any) => p.id === id);
+    const allProducts = await loadProducts();
+    const index = allProducts.findIndex((p: any) => p.id === id);
     
     if (index !== -1) {
-      productData.splice(index, 1);
-      await saveProducts(productData);
+      allProducts.splice(index, 1);
+      await saveProducts(allProducts);
       return NextResponse.json({ success: true });
     } else {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
