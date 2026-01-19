@@ -1,33 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, readFile } from 'fs/promises';
-import path from 'path';
 
-const PRODUCTS_FILE = path.join(process.cwd(), 'lib', 'products.json');
-
-// Load products from file
-async function loadProducts() {
-  try {
-    const data = await readFile(PRODUCTS_FILE, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    // If file doesn't exist, return default products
-    return getDefaultProducts();
-  }
-}
-
-// Save products to file
-async function saveProducts(products: any[]) {
-  try {
-    await writeFile(PRODUCTS_FILE, JSON.stringify(products, null, 2));
-    return true;
-  } catch (error) {
-    console.error('Failed to save products:', error);
-    return false;
-  }
-}
-
-function getDefaultProducts() {
-  return [
+// In-memory storage for products (will persist during server session)
+let productData = [
   // New Arrivals (20 products)
   { "id": "prod_1", "productCode": "LC-NA-001", "name": "Festival Saree", "price": 2220, "image": "/products/1.jpg", "description": "Beautiful chiffon saree with intricate design and premium quality finish", "category": "new-arrivals", "collection": "Festival Collection", "color": "Yellow", "fabric": "Crepe", "inStock": true },
   { "id": "prod_5", "productCode": "LC-NA-002", "name": "Embroidered Silk Saree", "price": 6658, "image": "/products/5.jpg", "description": "Beautiful georgette saree with intricate design and premium quality finish", "category": "new-arrivals", "collection": "Silk Collection", "color": "Pink", "fabric": "Georgette", "inStock": true },
@@ -106,7 +80,6 @@ function getDefaultProducts() {
   { "id": "prod_56", "productCode": "LC-SALE-014", "name": "Modern Fusion Saree", "price": 3578, "originalPrice": 7156, "image": "/products/56.jpg", "description": "Beautiful cotton saree with intricate design and premium quality finish", "category": "sale", "collection": "Modern Collection", "color": "Purple", "fabric": "Silk", "inStock": true, "discount": 50 },
   { "id": "prod_60", "productCode": "LC-SALE-015", "name": "Classic Handloom Saree", "price": 2009, "originalPrice": 4018, "image": "/products/60.jpg", "description": "Beautiful georgette saree with intricate design and premium quality finish", "category": "sale", "collection": "Handloom Collection", "color": "Gold", "fabric": "Georgette", "inStock": true, "discount": 50 }
 ];
-}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -115,7 +88,6 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '70');
   
-  const productData = await loadProducts();
   let filteredProducts = productData;
   
   // Filter by category
@@ -175,7 +147,6 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { action, productId, customerInfo } = await request.json();
-    const productData = await loadProducts();
     
     if (action === 'getProductForWhatsApp') {
       const product = productData.find((p: any) => p.id === productId);
@@ -235,10 +206,8 @@ export async function POST(request: NextRequest) {
     
     // Default product creation
     const product = await request.json();
-    const allProducts = await loadProducts();
     const newProduct = { ...product, id: Date.now().toString() };
-    allProducts.push(newProduct);
-    await saveProducts(allProducts);
+    productData.push(newProduct);
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
@@ -248,17 +217,21 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const { id, ...productUpdate } = await request.json();
-    const allProducts = await loadProducts();
-    const index = allProducts.findIndex((p: any) => p.id === id);
+    console.log('PUT request received:', { id, productUpdate });
+    
+    const index = productData.findIndex((p: any) => p.id === id);
+    console.log('Product index found:', index);
     
     if (index !== -1) {
-      allProducts[index] = { ...allProducts[index], ...productUpdate };
-      await saveProducts(allProducts);
-      return NextResponse.json({ success: true });
+      productData[index] = { ...productData[index], ...productUpdate };
+      console.log('Product updated:', productData[index]);
+      return NextResponse.json({ success: true, product: productData[index] });
     } else {
+      console.log('Product not found with id:', id);
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
   } catch (error) {
+    console.error('PUT error:', error);
     return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });
   }
 }
@@ -266,12 +239,10 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const { id } = await request.json();
-    const allProducts = await loadProducts();
-    const index = allProducts.findIndex((p: any) => p.id === id);
+    const index = productData.findIndex((p: any) => p.id === id);
     
     if (index !== -1) {
-      allProducts.splice(index, 1);
-      await saveProducts(allProducts);
+      productData.splice(index, 1);
       return NextResponse.json({ success: true });
     } else {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
