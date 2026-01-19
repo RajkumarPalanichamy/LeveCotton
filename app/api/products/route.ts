@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import clientPromise from '@/lib/mongodb';
 
-// In-memory storage for products (will persist during server session)
-let productData = [
+// Default products data
+const defaultProducts = [
   // New Arrivals (20 products)
   { "id": "prod_1", "productCode": "LC-NA-001", "name": "Festival Saree", "price": 2220, "image": "/products/1.jpg", "description": "Beautiful chiffon saree with intricate design and premium quality finish", "category": "new-arrivals", "collection": "Festival Collection", "color": "Yellow", "fabric": "Crepe", "inStock": true },
   { "id": "prod_5", "productCode": "LC-NA-002", "name": "Embroidered Silk Saree", "price": 6658, "image": "/products/5.jpg", "description": "Beautiful georgette saree with intricate design and premium quality finish", "category": "new-arrivals", "collection": "Silk Collection", "color": "Pink", "fabric": "Georgette", "inStock": true },
@@ -81,6 +82,26 @@ let productData = [
   { "id": "prod_60", "productCode": "LC-SALE-015", "name": "Classic Handloom Saree", "price": 2009, "originalPrice": 4018, "image": "/products/60.jpg", "description": "Beautiful georgette saree with intricate design and premium quality finish", "category": "sale", "collection": "Handloom Collection", "color": "Gold", "fabric": "Georgette", "inStock": true, "discount": 50 }
 ];
 
+// Get products from database
+async function getProducts() {
+  try {
+    const client = await clientPromise;
+    const db = client.db('levecotton');
+    const products = await db.collection('products').find({}).toArray();
+    
+    if (products.length === 0) {
+      // Initialize with default products
+      await db.collection('products').insertMany(defaultProducts);
+      return defaultProducts;
+    }
+    
+    return products;
+  } catch (error) {
+    console.error('Database error:', error);
+    return defaultProducts;
+  }
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const filter = searchParams.get('filter');
@@ -88,6 +109,7 @@ export async function GET(request: NextRequest) {
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '70');
   
+  const productData = await getProducts();
   let filteredProducts = productData;
   
   // Filter by category
@@ -147,6 +169,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { action, productId, customerInfo } = await request.json();
+    const productData = await getProducts();
     
     if (action === 'getProductForWhatsApp') {
       const product = productData.find((p: any) => p.id === productId);
@@ -206,8 +229,10 @@ export async function POST(request: NextRequest) {
     
     // Default product creation
     const product = await request.json();
+    const client = await clientPromise;
+    const db = client.db('levecotton');
     const newProduct = { ...product, id: Date.now().toString() };
-    productData.push(newProduct);
+    await db.collection('products').insertOne(newProduct);
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
@@ -219,13 +244,20 @@ export async function PUT(request: NextRequest) {
     const { id, ...productUpdate } = await request.json();
     console.log('PUT request received:', { id, productUpdate });
     
-    const index = productData.findIndex((p: any) => p.id === id);
-    console.log('Product index found:', index);
+    const client = await clientPromise;
+    const db = client.db('levecotton');
     
-    if (index !== -1) {
-      productData[index] = { ...productData[index], ...productUpdate };
-      console.log('Product updated:', productData[index]);
-      return NextResponse.json({ success: true, product: productData[index] });
+    const result = await db.collection('products').updateOne(
+      { id: id },
+      { $set: productUpdate }
+    );
+    
+    console.log('Database update result:', result);
+    
+    if (result.matchedCount > 0) {
+      const updatedProduct = await db.collection('products').findOne({ id: id });
+      console.log('Product updated:', updatedProduct);
+      return NextResponse.json({ success: true, product: updatedProduct });
     } else {
       console.log('Product not found with id:', id);
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
@@ -239,10 +271,12 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const { id } = await request.json();
-    const index = productData.findIndex((p: any) => p.id === id);
+    const client = await clientPromise;
+    const db = client.db('levecotton');
     
-    if (index !== -1) {
-      productData.splice(index, 1);
+    const result = await db.collection('products').deleteOne({ id: id });
+    
+    if (result.deletedCount > 0) {
       return NextResponse.json({ success: true });
     } else {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
