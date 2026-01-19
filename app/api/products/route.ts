@@ -1,11 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb';
+import { writeFile, readFile } from 'fs/promises';
+import path from 'path';
 
-// In-memory fallback storage
-let memoryProducts: any[] = [];
+const PRODUCTS_FILE = path.join(process.cwd(), 'lib', 'products.json');
 
-// Default products data
-const defaultProducts = [
+// Load products from file
+async function loadProducts() {
+  try {
+    const data = await readFile(PRODUCTS_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Failed to load products from file:', error);
+    return getDefaultProducts();
+  }
+}
+
+// Save products to file
+async function saveProducts(products: any[]) {
+  try {
+    await writeFile(PRODUCTS_FILE, JSON.stringify(products, null, 2));
+    return true;
+  } catch (error) {
+    console.error('Failed to save products to file:', error);
+    return false;
+  }
+}
+
+function getDefaultProducts() {
+  return [
   // New Arrivals (20 products)
   { "id": "prod_1", "productCode": "LC-NA-001", "name": "Festival Saree", "price": 2220, "image": "/products/1.jpg", "description": "Beautiful chiffon saree with intricate design and premium quality finish", "category": "new-arrivals", "collection": "Festival Collection", "color": "Yellow", "fabric": "Crepe", "inStock": true },
   { "id": "prod_5", "productCode": "LC-NA-002", "name": "Embroidered Silk Saree", "price": 6658, "image": "/products/5.jpg", "description": "Beautiful georgette saree with intricate design and premium quality finish", "category": "new-arrivals", "collection": "Silk Collection", "color": "Pink", "fabric": "Georgette", "inStock": true },
@@ -84,25 +106,6 @@ const defaultProducts = [
   { "id": "prod_56", "productCode": "LC-SALE-014", "name": "Modern Fusion Saree", "price": 3578, "originalPrice": 7156, "image": "/products/56.jpg", "description": "Beautiful cotton saree with intricate design and premium quality finish", "category": "sale", "collection": "Modern Collection", "color": "Purple", "fabric": "Silk", "inStock": true, "discount": 50 },
   { "id": "prod_60", "productCode": "LC-SALE-015", "name": "Classic Handloom Saree", "price": 2009, "originalPrice": 4018, "image": "/products/60.jpg", "description": "Beautiful georgette saree with intricate design and premium quality finish", "category": "sale", "collection": "Handloom Collection", "color": "Gold", "fabric": "Georgette", "inStock": true, "discount": 50 }
 ];
-
-// Get products from database
-async function getProducts() {
-  try {
-    const client = await clientPromise;
-    const db = client.db('levecotton');
-    const products = await db.collection('products').find({}).toArray();
-    
-    if (products.length === 0) {
-      // Initialize with default products
-      await db.collection('products').insertMany(defaultProducts);
-      return defaultProducts;
-    }
-    
-    return products;
-  } catch (error) {
-    console.error('Database connection error:', error);
-    throw error; // Re-throw to handle in calling function
-  }
 }
 
 export async function GET(request: NextRequest) {
@@ -113,7 +116,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '70');
     
-    const productData = await getProducts();
+    const productData = await loadProducts();
     let filteredProducts = productData;
   
   // Filter by category
@@ -180,7 +183,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { action, productId, customerInfo } = await request.json();
-    const productData = await getProducts();
+    const productData = await loadProducts();
     
     if (action === 'getProductForWhatsApp') {
       const product = productData.find((p: any) => p.id === productId);
@@ -188,16 +191,16 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Product not found' }, { status: 404 });
       }
       
-      const whatsappMessage = `🌟 *LEVE COTTONS* 🌟\n\n` +
-        `📦 *Product Code:* ${product.productCode}\n` +
-        `👗 *Product:* ${product.name}\n` +
-        `💰 *Price:* ₹${product.price.toLocaleString()}\n` +
-        `${product.originalPrice ? `~~₹${product.originalPrice.toLocaleString()}~~ *${product.discount}% OFF*\n` : ''}` +
-        `🎨 *Color:* ${product.color}\n` +
-        `🧵 *Fabric:* ${product.fabric}\n` +
-        `📂 *Collection:* ${product.collection}\n` +
-        `📝 *Description:* ${product.description}\n\n` +
-        `✅ *In Stock: ${product.inStock ? 'Available' : 'Out of Stock'}*\n\n` +
+      const whatsappMessage = `🌟 *LEVE COTTONS* 🌟\\n\\n` +
+        `📦 *Product Code:* ${product.productCode}\\n` +
+        `👗 *Product:* ${product.name}\\n` +
+        `💰 *Price:* ₹${product.price.toLocaleString()}\\n` +
+        `${product.originalPrice ? `~~₹${product.originalPrice.toLocaleString()}~~ *${product.discount}% OFF*\\n` : ''}` +
+        `🎨 *Color:* ${product.color}\\n` +
+        `🧵 *Fabric:* ${product.fabric}\\n` +
+        `📂 *Collection:* ${product.collection}\\n` +
+        `📝 *Description:* ${product.description}\\n\\n` +
+        `✅ *In Stock: ${product.inStock ? 'Available' : 'Out of Stock'}*\\n\\n` +
         `🛒 *I'm interested in this saree. Please share more details!*`;
       
       return NextResponse.json({ 
@@ -213,21 +216,21 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Product not found' }, { status: 404 });
       }
       
-      const orderMessage = `🛍️ *NEW ORDER - LEVE COTTONS* 🛍️\n\n` +
-        `👤 *Customer Details:*\n` +
-        `Name: ${customerInfo.name}\n` +
-        `Phone: ${customerInfo.phone}\n` +
-        `Address: ${customerInfo.address}\n\n` +
-        `📦 *Order Details:*\n` +
-        `Product Code: ${product.productCode}\n` +
-        `Product: ${product.name}\n` +
-        `Price: ₹${product.price.toLocaleString()}\n` +
-        `Color: ${product.color}\n` +
-        `Fabric: ${product.fabric}\n` +
-        `Collection: ${product.collection}\n` +
-        `Quantity: ${customerInfo.quantity || 1}\n\n` +
-        `💳 *Total Amount: ₹${(product.price * (customerInfo.quantity || 1)).toLocaleString()}*\n\n` +
-        `📅 *Order Date: ${new Date().toLocaleDateString('en-IN')}*\n` +
+      const orderMessage = `🛍️ *NEW ORDER - LEVE COTTONS* 🛍️\\n\\n` +
+        `👤 *Customer Details:*\\n` +
+        `Name: ${customerInfo.name}\\n` +
+        `Phone: ${customerInfo.phone}\\n` +
+        `Address: ${customerInfo.address}\\n\\n` +
+        `📦 *Order Details:*\\n` +
+        `Product Code: ${product.productCode}\\n` +
+        `Product: ${product.name}\\n` +
+        `Price: ₹${product.price.toLocaleString()}\\n` +
+        `Color: ${product.color}\\n` +
+        `Fabric: ${product.fabric}\\n` +
+        `Collection: ${product.collection}\\n` +
+        `Quantity: ${customerInfo.quantity || 1}\\n\\n` +
+        `💳 *Total Amount: ₹${(product.price * (customerInfo.quantity || 1)).toLocaleString()}*\\n\\n` +
+        `📅 *Order Date: ${new Date().toLocaleDateString('en-IN')}*\\n` +
         `🕐 *Order Time: ${new Date().toLocaleTimeString('en-IN')}*`;
       
       return NextResponse.json({ 
@@ -240,10 +243,10 @@ export async function POST(request: NextRequest) {
     
     // Default product creation
     const product = await request.json();
-    const client = await clientPromise;
-    const db = client.db('levecotton');
+    const productData = await loadProducts();
     const newProduct = { ...product, id: Date.now().toString() };
-    await db.collection('products').insertOne(newProduct);
+    productData.push(newProduct);
+    await saveProducts(productData);
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
@@ -255,23 +258,14 @@ export async function PUT(request: NextRequest) {
     const { id, ...productUpdate } = await request.json();
     console.log('PUT request received:', { id, productUpdate });
     
-    const client = await clientPromise;
-    console.log('MongoDB client connected');
+    const productData = await loadProducts();
+    const index = productData.findIndex((p: any) => p.id === id);
     
-    const db = client.db('levecotton');
-    console.log('Database selected: levecotton');
-    
-    const result = await db.collection('products').updateOne(
-      { id: id },
-      { $set: productUpdate }
-    );
-    
-    console.log('Database update result:', result);
-    
-    if (result.matchedCount > 0) {
-      const updatedProduct = await db.collection('products').findOne({ id: id });
-      console.log('Product updated successfully:', updatedProduct);
-      return NextResponse.json({ success: true, product: updatedProduct });
+    if (index !== -1) {
+      productData[index] = { ...productData[index], ...productUpdate };
+      await saveProducts(productData);
+      console.log('Product updated successfully:', productData[index]);
+      return NextResponse.json({ success: true, product: productData[index] });
     } else {
       console.log('Product not found with id:', id);
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
@@ -288,12 +282,12 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const { id } = await request.json();
-    const client = await clientPromise;
-    const db = client.db('levecotton');
+    const productData = await loadProducts();
+    const index = productData.findIndex((p: any) => p.id === id);
     
-    const result = await db.collection('products').deleteOne({ id: id });
-    
-    if (result.deletedCount > 0) {
+    if (index !== -1) {
+      productData.splice(index, 1);
+      await saveProducts(productData);
       return NextResponse.json({ success: true });
     } else {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
