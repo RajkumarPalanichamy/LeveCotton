@@ -235,10 +235,10 @@ export async function POST(request: NextRequest) {
     
     // Default product creation
     const product = await request.json();
-    const productData = await loadProducts();
+    const allProducts = await loadProducts();
     const newProduct = { ...product, id: Date.now().toString() };
-    productData.push(newProduct);
-    await saveProducts(productData);
+    allProducts.push(newProduct);
+    await saveProducts(allProducts);
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
@@ -248,12 +248,12 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const { id, ...productUpdate } = await request.json();
-    const productData = await loadProducts();
-    const index = productData.findIndex((p: any) => p.id === id);
+    const allProducts = await loadProducts();
+    const index = allProducts.findIndex((p: any) => p.id === id);
     
     if (index !== -1) {
-      productData[index] = { ...productData[index], ...productUpdate };
-      await saveProducts(productData);
+      allProducts[index] = { ...allProducts[index], ...productUpdate };
+      await saveProducts(allProducts);
       return NextResponse.json({ success: true });
     } else {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
@@ -266,12 +266,12 @@ export async function PUT(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const { id } = await request.json();
-    const productData = await loadProducts();
-    const index = productData.findIndex((p: any) => p.id === id);
+    const allProducts = await loadProducts();
+    const index = allProducts.findIndex((p: any) => p.id === id);
     
     if (index !== -1) {
-      productData.splice(index, 1);
-      await saveProducts(productData);
+      allProducts.splice(index, 1);
+      await saveProducts(allProducts);
       return NextResponse.json({ success: true });
     } else {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
