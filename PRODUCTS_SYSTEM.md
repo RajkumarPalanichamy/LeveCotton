@@ -1,4 +1,4 @@
-# Leve Cottons - 70 Products Organization System
+# Leve Cottons - 70 Products Organization System test
 
 ## Overview
 This system organizes exactly 70 products across 4 main categories with unique product codes and WhatsApp integration for seamless ordering.
