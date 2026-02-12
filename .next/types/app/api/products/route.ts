@@ -1,4 +1,4 @@
-// File: H:\TZProject\LeveCotton\style\app\api\products\route.ts
+// File: C:\Mine\FusionSpace\LeveCotton\app\api\products\route.ts
 import * as entry from '../../../../../app/api/products/route.js'
 import type { NextRequest } from 'next/server.js'
 
