@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
-import { LogOut, Package, Filter, Search, RefreshCw, Eye, CheckCircle, XCircle, Clock, Truck, Mail, FileText } from 'lucide-react';
+import { LogOut, Package, Filter, Search, RefreshCw, Eye, CheckCircle, XCircle, Clock, Truck, Mail, FileText, Printer } from 'lucide-react';
 
 interface Order {
     id: string;
@@ -190,6 +190,10 @@ export default function OrdersPage() {
         } finally {
             setSendingEmail(false);
         }
+    };
+
+    const handlePrint = () => {
+        window.print();
     };
 
     const getStatusBadge = (status: string, type: 'order' | 'payment') => {
@@ -420,8 +424,8 @@ export default function OrdersPage() {
                                             </td>
                                             <td className="px-4 py-4">
                                                 <span className={`px-2 py-1 rounded-full text-xs font-semibold ${order.order_type === 'online'
-                                                        ? 'bg-blue-100 text-blue-800'
-                                                        : 'bg-green-100 text-green-800'
+                                                    ? 'bg-blue-100 text-blue-800'
+                                                    : 'bg-green-100 text-green-800'
                                                     }`}>
                                                     {order.order_type}
                                                 </span>
@@ -488,6 +492,13 @@ export default function OrdersPage() {
                                         >
                                             <FileText className="w-4 h-4" />
                                             <span className="text-sm">Send Invoice</span>
+                                        </button>
+                                        <button
+                                            onClick={handlePrint}
+                                            className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded-lg transition-colors shadow-md"
+                                        >
+                                            <Printer className="w-4 h-4" />
+                                            <span className="text-sm">Print Receipt</span>
                                         </button>
                                     </div>
                                     {sendingEmail && (
@@ -577,6 +588,94 @@ export default function OrdersPage() {
                                     </div>
                                 </div>
                             )}
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Receipt Print Component (Hidden from UI) */}
+            {selectedOrder && (
+                <div className="hidden print:block print:w-[80mm] print:p-0 print:m-0 bg-white text-black font-mono">
+                    <style jsx global>{`
+                        @media print {
+                            body * {
+                                visibility: hidden;
+                            }
+                            #receipt-print, #receipt-print * {
+                                visibility: visible;
+                            }
+                            #receipt-print {
+                                position: absolute;
+                                left: 0;
+                                top: 0;
+                                width: 80mm;
+                                padding: 5mm;
+                            }
+                            @page {
+                                size: 80mm auto;
+                                margin: 0;
+                            }
+                        }
+                    `}</style>
+                    <div id="receipt-print" className="text-sm">
+                        <div className="text-center mb-4 border-b pb-2 border-black border-dashed">
+                            <h1 className="text-xl font-bold uppercase">LEVE COTTONS</h1>
+                            <p className="text-[10px]">where tradition meets trend</p>
+                            <p className="text-[10px] mt-1">Visit: www.levecotton.com</p>
+                            <p className="text-[10px]">Phone: +91 93458 68005</p>
+                        </div>
+
+                        <div className="mb-4 border-b pb-2 border-black border-dashed text-[10px]">
+                            <p><strong>ORDER ID:</strong> {selectedOrder.id}</p>
+                            <p><strong>DATE:</strong> {new Date(selectedOrder.created_at).toLocaleString()}</p>
+                            <p><strong>TYPE:</strong> {selectedOrder.order_type.toUpperCase()}</p>
+                        </div>
+
+                        <div className="mb-4 border-b pb-2 border-black border-dashed text-[10px]">
+                            <p className="font-bold">CUSTOMER DETAILS:</p>
+                            <p>{selectedOrder.customer_name}</p>
+                            <p>{selectedOrder.customer_phone}</p>
+                            <p className="whitespace-pre-wrap">{selectedOrder.shipping_address}</p>
+                        </div>
+
+                        <div className="mb-4 text-[10px]">
+                            <table className="w-full text-left">
+                                <thead className="border-b border-black border-dashed">
+                                    <tr>
+                                        <th className="pb-1">ITEM</th>
+                                        <th className="pb-1 text-center">QTY</th>
+                                        <th className="pb-1 text-right">PRICE</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {selectedOrder.items.map((item: any, idx: number) => (
+                                        <tr key={idx} className="border-b border-gray-200 border-dotted">
+                                            <td className="py-1 leading-tight">{item.name}</td>
+                                            <td className="py-1 text-center font-bold">x{item.quantity}</td>
+                                            <td className="py-1 text-right">₹{item.price * item.quantity}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div className="mb-4 space-y-1 text-[11px] border-t pt-2 border-black border-dashed">
+                            <div className="flex justify-between font-bold text-lg">
+                                <span>TOTAL:</span>
+                                <span>₹{selectedOrder.total_amount.toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span>PAYMENT:</span>
+                                <span className="uppercase">{selectedOrder.payment_status}</span>
+                            </div>
+                        </div>
+
+                        <div className="text-center mt-6 border-t pt-4 border-black border-dashed">
+                            <p className="text-[11px] font-bold">THANK YOU FOR SHOPPING!</p>
+                            <p className="text-[9px] mt-1 italic">Please keep this receipt for your records.</p>
+                            <div className="mt-4 flex flex-col items-center">
+                                <div className="w-24 h-4 bg-black mb-1"></div>
+                                <p className="text-[8px] tracking-widest">{selectedOrder.id}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
