@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { CartItem } from '@/types';
 
 // Generate or retrieve a persistent session ID for guest users
@@ -14,16 +14,26 @@ function getSessionId(): string {
   return sessionId;
 }
 
-export function useCart() {
+interface CartContextType {
+  cart: CartItem[];
+  addToCart: (item: CartItem) => Promise<void>;
+  updateQuantity: (productId: string, variantId: string, quantity: number) => Promise<void>;
+  removeFromCart: (productId: string, variantId: string) => Promise<void>;
+  clearCart: () => Promise<void>;
+  loading: boolean;
+  sessionId: string;
+  fetchCart: () => Promise<void>;
+}
+
+const CartContext = createContext<CartContextType | null>(null);
+
+export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
   const sessionId = typeof window !== 'undefined' ? getSessionId() : 'guest';
+  const hasFetched = useRef(false);
 
-  useEffect(() => {
-    fetchCart();
-  }, []);
-
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/cart?sessionId=${sessionId}`);
@@ -41,26 +51,36 @@ export function useCart() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [sessionId]);
 
-  const addToCart = async (item: CartItem) => {
+  useEffect(() => {
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      fetchCart();
+    }
+  }, [fetchCart]);
+
+  const addToCart = useCallback(async (item: CartItem) => {
     console.log('Adding to cart:', item);
 
     // Optimistic update
-    const existing = cart.find(
-      c => c.productId === item.productId && c.variantId === item.variantId
-    );
-    let newCart;
-    if (existing) {
-      newCart = cart.map(c =>
-        c.productId === item.productId && c.variantId === item.variantId
-          ? { ...c, quantity: c.quantity + item.quantity }
-          : c
+    setCart(prev => {
+      const existing = prev.find(
+        c => c.productId === item.productId && c.variantId === item.variantId
       );
-    } else {
-      newCart = [...cart, item];
-    }
-    setCart(newCart);
+      let newCart;
+      if (existing) {
+        newCart = prev.map(c =>
+          c.productId === item.productId && c.variantId === item.variantId
+            ? { ...c, quantity: c.quantity + item.quantity }
+            : c
+        );
+      } else {
+        newCart = [...prev, item];
+      }
+      localStorage.setItem('cart', JSON.stringify(newCart));
+      return newCart;
+    });
 
     // Persist to server
     try {
@@ -77,12 +97,9 @@ export function useCart() {
     } catch (error) {
       console.error('Failed to save cart to server:', error);
     }
+  }, [sessionId]);
 
-    // Also save to localStorage as backup
-    localStorage.setItem('cart', JSON.stringify(newCart));
-  };
-
-  const updateQuantity = async (productId: string, variantId: string, quantity: number) => {
+  const updateQuantity = useCallback(async (productId: string, variantId: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId, variantId);
       return;
@@ -111,9 +128,9 @@ export function useCart() {
     }
 
     localStorage.setItem('cart', JSON.stringify(newCart));
-  };
+  }, [sessionId, cart]);
 
-  const removeFromCart = async (productId: string, variantId: string) => {
+  const removeFromCart = useCallback(async (productId: string, variantId: string) => {
     const newCart = cart.filter(c => !(c.productId === productId && c.variantId === variantId));
     setCart(newCart);
 
@@ -132,9 +149,9 @@ export function useCart() {
     }
 
     localStorage.setItem('cart', JSON.stringify(newCart));
-  };
+  }, [sessionId, cart]);
 
-  const clearCart = async () => {
+  const clearCart = useCallback(async () => {
     setCart([]);
 
     try {
@@ -148,7 +165,19 @@ export function useCart() {
     }
 
     localStorage.removeItem('cart');
-  };
+  }, [sessionId]);
 
-  return { cart, addToCart, updateQuantity, removeFromCart, clearCart, loading, sessionId, fetchCart };
+  return (
+    <CartContext.Provider value={{ cart, addToCart, updateQuantity, removeFromCart, clearCart, loading, sessionId, fetchCart }}>
+      {children}
+    </CartContext.Provider>
+  );
+}
+
+export function useCart(): CartContextType {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error('useCart must be used within a CartProvider');
+  }
+  return context;
 }

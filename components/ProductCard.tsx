@@ -2,7 +2,9 @@
 
 import Image from 'next/image';
 import { WhatsAppButton } from './WhatsAppButton';
+import { RazorpayCheckout } from './RazorpayCheckout';
 import { useState } from 'react';
+import { CreditCard } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -26,11 +28,19 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const [showOrderForm, setShowOrderForm] = useState(false);
+  const [showBuyNow, setShowBuyNow] = useState(false);
+  const [buyNowSuccess, setBuyNowSuccess] = useState<string | null>(null);
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     phone: '',
     address: '',
     quantity: 1
+  });
+  const [buyNowInfo, setBuyNowInfo] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
   });
 
   const handleOrderSubmit = (e: React.FormEvent) => {
@@ -100,17 +110,26 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowOrderForm(true)}
-            disabled={!product.inStock}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200"
-          >
-            {product.inStock ? 'Order Now' : 'Out of Stock'}
-          </button>
-          
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowBuyNow(true)}
+              disabled={!product.inStock}
+              className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:bg-gray-400 text-white py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 flex items-center justify-center gap-1.5"
+            >
+              <CreditCard className="w-3.5 h-3.5" />
+              {product.inStock ? 'Buy Now' : 'Out of Stock'}
+            </button>
+            <button
+              onClick={() => setShowOrderForm(true)}
+              disabled={!product.inStock}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200"
+            >
+              Order via WhatsApp
+            </button>
+          </div>
           <div className="relative">
-            <WhatsAppButton 
+            <WhatsAppButton
               product={product}
               type="inquiry"
             />
@@ -123,7 +142,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold mb-4">Place Order</h3>
-            
+
             <form onSubmit={handleOrderSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -133,11 +152,11 @@ export function ProductCard({ product }: ProductCardProps) {
                   type="text"
                   required
                   value={customerInfo.name}
-                  onChange={(e) => setCustomerInfo({...customerInfo, name: e.target.value})}
+                  onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Phone Number *
@@ -146,11 +165,11 @@ export function ProductCard({ product }: ProductCardProps) {
                   type="tel"
                   required
                   value={customerInfo.phone}
-                  onChange={(e) => setCustomerInfo({...customerInfo, phone: e.target.value})}
+                  onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Address *
@@ -158,12 +177,12 @@ export function ProductCard({ product }: ProductCardProps) {
                 <textarea
                   required
                   value={customerInfo.address}
-                  onChange={(e) => setCustomerInfo({...customerInfo, address: e.target.value})}
+                  onChange={(e) => setCustomerInfo({ ...customerInfo, address: e.target.value })}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows={3}
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Quantity
@@ -172,7 +191,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   type="number"
                   min="1"
                   value={customerInfo.quantity}
-                  onChange={(e) => setCustomerInfo({...customerInfo, quantity: parseInt(e.target.value)})}
+                  onChange={(e) => setCustomerInfo({ ...customerInfo, quantity: parseInt(e.target.value) })}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -185,14 +204,118 @@ export function ProductCard({ product }: ProductCardProps) {
                 >
                   Cancel
                 </button>
-                
-                <WhatsAppButton 
+
+                <WhatsAppButton
                   product={product}
                   customerInfo={customerInfo}
                   type="order"
                 />
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Buy Now Modal */}
+      {showBuyNow && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            {buyNowSuccess ? (
+              <div className="text-center py-6">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-green-600 mb-2">Payment Successful!</h3>
+                <p className="text-sm text-gray-500 mb-4">Order ID: <span className="font-mono">{buyNowSuccess}</span></p>
+                <button
+                  onClick={() => { setBuyNowSuccess(null); setShowBuyNow(false); }}
+                  className="bg-purple-600 hover:bg-purple-700 text-white py-2 px-6 rounded-xl font-medium"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-gray-900">Buy Now</h3>
+                  <button onClick={() => setShowBuyNow(false)} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+                </div>
+
+                {/* Product summary */}
+                <div className="flex gap-3 p-3 bg-gray-50 rounded-xl mb-4">
+                  <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded-lg" />
+                  <div>
+                    <p className="font-medium text-sm text-gray-900 line-clamp-1">{product.name}</p>
+                    <p className="text-xs text-gray-500 font-mono">{product.productCode}</p>
+                    <p className="font-bold text-purple-600">₹{product.price.toLocaleString('en-IN')}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    placeholder="Full Name *"
+                    value={buyNowInfo.name}
+                    onChange={(e) => setBuyNowInfo({ ...buyNowInfo, name: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    value={buyNowInfo.email}
+                    onChange={(e) => setBuyNowInfo({ ...buyNowInfo, email: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Phone Number *"
+                    value={buyNowInfo.phone}
+                    onChange={(e) => setBuyNowInfo({ ...buyNowInfo, phone: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                  <textarea
+                    placeholder="Shipping Address *"
+                    value={buyNowInfo.address}
+                    onChange={(e) => setBuyNowInfo({ ...buyNowInfo, address: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    rows={2}
+                  />
+                </div>
+
+                <div className="mt-4 space-y-2">
+                  {buyNowInfo.name && buyNowInfo.phone && buyNowInfo.address ? (
+                    <RazorpayCheckout
+                      amount={product.price}
+                      customerInfo={buyNowInfo}
+                      items={[{
+                        productId: product.id,
+                        productCode: product.productCode,
+                        productName: product.name,
+                        price: product.price,
+                        quantity: 1,
+                      }]}
+                      onSuccess={(orderId) => setBuyNowSuccess(orderId)}
+                      onError={(error) => alert(`Payment failed: ${error}`)}
+                    />
+                  ) : (
+                    <button
+                      disabled
+                      className="w-full bg-gray-300 text-gray-500 py-3 px-6 rounded-xl font-bold cursor-not-allowed text-sm"
+                    >
+                      Fill details to pay online
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setShowBuyNow(false)}
+                    className="w-full text-gray-500 hover:text-gray-700 py-2 text-sm"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
