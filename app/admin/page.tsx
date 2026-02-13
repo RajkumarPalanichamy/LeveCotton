@@ -1,16 +1,45 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useProducts } from '@/hooks/useProducts';
 import { Navbar } from '@/components/Navbar';
-import { Edit, Save, X, Upload } from 'lucide-react';
+import { Edit, Save, X, Upload, LogOut, Package } from 'lucide-react';
 
 export default function AdminPanel() {
+  const router = useRouter();
   const { products, loading, updateProduct } = useProducts();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [searchCode, setSearchCode] = useState('');
   const [filteredProducts, setFilteredProducts] = useState(products);
+  const [adminUser, setAdminUser] = useState<any>(null);
+
+  // Authentication check
+  useEffect(() => {
+    const checkAuth = () => {
+      const isAdmin = localStorage.getItem('isAdmin');
+      const user = localStorage.getItem('adminUser');
+
+      if (!isAdmin || isAdmin !== 'true' || !user) {
+        router.push('/login');
+        return;
+      }
+
+      try {
+        setAdminUser(JSON.parse(user));
+        setIsAuthenticated(true);
+      } catch (error) {
+        router.push('/login');
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
   const [editForm, setEditForm] = useState({
     name: '',
     price: 0,
@@ -23,7 +52,7 @@ export default function AdminPanel() {
   });
 
   useEffect(() => {
-    const filtered = products.filter(product => 
+    const filtered = products.filter(product =>
       product.productCode?.toLowerCase().includes(searchCode.toLowerCase()) ||
       product.name.toLowerCase().includes(searchCode.toLowerCase())
     );
@@ -84,12 +113,38 @@ export default function AdminPanel() {
     setEditForm({ name: '', price: 0, category: '', description: '', color: '', fabric: '', image: '', productCode: '' });
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('adminUser');
+    localStorage.removeItem('isAdmin');
+    localStorage.removeItem('adminLoginTime');
+    router.push('/login');
+  };
+
+
+  // Show loading while checking authentication
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Verifying authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If not authenticated, don't render anything (will redirect)
+  if (!isAuthenticated) {
+    return null;
+  }
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50">
         <Navbar />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
+            <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Panel</h1>
             <p className="text-gray-600">Loading products...</p>
           </div>
@@ -98,11 +153,42 @@ export default function AdminPanel() {
     );
   }
 
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50">
       <Navbar />
-      
+
       <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        {/* Admin Info Bar */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 p-4 mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-lg">{adminUser?.name?.charAt(0) || 'A'}</span>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Logged in as</p>
+              <p className="font-semibold text-gray-900">{adminUser?.name || 'Admin'}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => router.push('/admin/orders')}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+            >
+              <Package className="w-4 h-4" />
+              <span className="hidden sm:inline">Orders</span>
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
+          </div>
+        </div>
+
+
         <div className="text-center mb-8 sm:mb-12">
           <div className="inline-flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full mb-4">
             <Edit className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
@@ -121,7 +207,7 @@ export default function AdminPanel() {
               Product Management
             </h2>
             <p className="text-purple-100 mt-2 text-sm sm:text-base">Total Products: {filteredProducts.length}</p>
-            
+
             {/* Search Bar */}
             <div className="mt-4">
               <input
@@ -149,7 +235,7 @@ export default function AdminPanel() {
                         <p className="text-sm text-gray-600">₹{product.price}</p>
                       </div>
                     </div>
-                    
+
                     {editingId === product.id ? (
                       <div className="space-y-3">
                         <input
@@ -245,7 +331,7 @@ export default function AdminPanel() {
                   </div>
                 ))}
               </div>
-              
+
               {/* Desktop Table View */}
               <table className="hidden sm:table w-full">
                 <thead className="bg-gradient-to-r from-gray-50 to-gray-100">

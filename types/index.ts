@@ -13,9 +13,14 @@ export interface Product {
   price: number;
   category: string;
   images: string[];
+  image?: string; // Single image URL (used in some views)
   variants: ProductVariant[];
+  productCode?: string; // Product code for identification
+  color?: string; // Product color
+  fabric?: string; // Fabric type
   createdAt: string;
 }
+
 
 export interface CartItem {
   productId: string;
