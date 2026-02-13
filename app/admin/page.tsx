@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useProducts } from '@/hooks/useProducts';
 import { Navbar } from '@/components/Navbar';
+import { LazyImage } from '@/components/LazyImage';
+import { LazyLoad } from '@/components/LazyLoad';
 import { Edit, Save, X, Upload, LogOut, Package, Search, RefreshCw, Eye, Trash2, Plus } from 'lucide-react';
 
 export default function AdminPanel() {
@@ -266,44 +268,56 @@ export default function AdminPanel() {
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts.map((product) => (
-            <div
+            <LazyLoad
               key={product.id}
-              className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1"
+              className="h-full"
+              placeholder={
+                <div className="bg-white/80 rounded-xl shadow-lg border border-white/20 overflow-hidden h-96 animate-pulse">
+                  <div className="h-48 bg-gray-200"></div>
+                  <div className="p-4 space-y-3">
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                    <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+                  </div>
+                </div>
+              }
             >
-              {/* Product Image */}
-              <div className="relative h-48 bg-gray-100">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-2 right-2 bg-purple-600 text-white px-2 py-1 rounded-full text-xs font-mono font-bold">
-                  {product.productCode || `LC-${product.id.slice(-3)}`}
+              <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
+                {/* Product Image */}
+                <div className="relative h-48 bg-gray-100">
+                  <LazyImage
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-2 right-2 bg-purple-600 text-white px-2 py-1 rounded-full text-xs font-mono font-bold z-10">
+                    {product.productCode || `LC-${product.id.slice(-3)}`}
+                  </div>
+                </div>
+
+                {/* Product Info */}
+                <div className="p-4">
+                  <h3 className="font-bold text-lg text-gray-900 mb-1 truncate">{product.name}</h3>
+                  <p className="text-sm text-gray-600 mb-2">{product.category}</p>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-2xl font-bold text-purple-600">₹{product.price.toLocaleString()}</span>
+                    {product.color && (
+                      <span className="text-xs bg-gray-100 px-2 py-1 rounded">{product.color}</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mb-4 line-clamp-2">{product.description}</p>
+
+                  {/* Action Button */}
+                  <button
+                    onClick={() => openEditModal(product)}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
+                    <Edit className="w-4 h-4" />
+                    <span>Edit Product</span>
+                  </button>
                 </div>
               </div>
-
-              {/* Product Info */}
-              <div className="p-4">
-                <h3 className="font-bold text-lg text-gray-900 mb-1 truncate">{product.name}</h3>
-                <p className="text-sm text-gray-600 mb-2">{product.category}</p>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-2xl font-bold text-purple-600">₹{product.price.toLocaleString()}</span>
-                  {product.color && (
-                    <span className="text-xs bg-gray-100 px-2 py-1 rounded">{product.color}</span>
-                  )}
-                </div>
-                <p className="text-xs text-gray-500 mb-4 line-clamp-2">{product.description}</p>
-
-                {/* Action Button */}
-                <button
-                  onClick={() => openEditModal(product)}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
-                >
-                  <Edit className="w-4 h-4" />
-                  <span>Edit Product</span>
-                </button>
-              </div>
-            </div>
+            </LazyLoad>
           ))}
         </div>
 

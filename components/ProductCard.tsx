@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { WhatsAppButton } from './WhatsAppButton';
 import { RazorpayCheckout } from './RazorpayCheckout';
+import { LazyImage } from './LazyImage';
 import { useState } from 'react';
 import { CreditCard } from 'lucide-react';
 
@@ -51,20 +52,19 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
       {/* Product Image */}
-      <div className="relative aspect-square">
-        <Image
+      <div className="relative aspect-square bg-gray-100">
+        <LazyImage
           src={product.image}
           alt={product.name}
-          fill
-          className="object-cover"
+          className="w-full h-full object-cover"
         />
         {product.discount && (
-          <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-sm font-semibold">
+          <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-md text-sm font-semibold z-10">
             {product.discount}% OFF
           </div>
         )}
         {!product.inStock && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
             <span className="text-white font-semibold text-lg">Out of Stock</span>
           </div>
         )}

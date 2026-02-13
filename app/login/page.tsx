@@ -155,14 +155,7 @@ export default function LoginPage() {
                             )}
                         </button>
 
-                        {/* Info Section */}
-                        <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-100">
-                            <p className="text-xs text-gray-600 text-center">
-                                <span className="font-semibold">Default Credentials:</span><br />
-                                Email: admin@levecotton.com<br />
-                                Password: Admin@123
-                            </p>
-                        </div>
+
                     </form>
                 </div>
 
