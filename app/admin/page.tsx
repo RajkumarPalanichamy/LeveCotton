@@ -10,7 +10,8 @@ import { Edit, Save, X, Upload, LogOut, Package, Search, RefreshCw, Eye, Trash2,
 
 export default function AdminPanel() {
   const router = useRouter();
-  const { products, loading, updateProduct } = useProducts();
+  const { products, loading, updateProduct, createProduct, deleteProduct } = useProducts();
+  const [isAdding, setIsAdding] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [adminUser, setAdminUser] = useState<any>(null);
@@ -74,7 +75,23 @@ export default function AdminPanel() {
     });
   };
 
+  const openAddModal = () => {
+    setIsAdding(true);
+    setSelectedProduct(null);
+    setEditForm({
+      name: '',
+      price: 0,
+      category: '',
+      description: '',
+      color: '',
+      fabric: '',
+      image: '',
+      productCode: `LC-${Math.floor(1000 + Math.random() * 9000)}`
+    });
+  };
+
   const closeModal = () => {
+    setIsAdding(false);
     setSelectedProduct(null);
     setEditForm({
       name: '',
@@ -117,21 +134,42 @@ export default function AdminPanel() {
   };
 
   const saveChanges = async () => {
-    if (!selectedProduct) return;
+    if (!isAdding && !selectedProduct) return;
 
     setSaving(true);
     try {
-      const success = await updateProduct(selectedProduct.id, editForm);
+      let success = false;
+      if (isAdding) {
+        success = await createProduct({
+          ...editForm,
+          id: editForm.productCode.toLowerCase().replace(/\s+/g, '-'),
+          inStock: true
+        } as any);
+      } else {
+        success = await updateProduct(selectedProduct.id, editForm);
+      }
+
       if (success) {
-        alert('✅ Product updated successfully!');
+        alert(isAdding ? '✅ Product added successfully!' : '✅ Product updated successfully!');
         closeModal();
       } else {
-        alert('❌ Failed to update product');
+        alert('❌ Action failed. Please check console for details.');
       }
     } catch (error) {
-      alert('❌ Failed to update product');
+      alert('❌ Error occurred');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async (id: string, name: string) => {
+    if (confirm(`Are you sure you want to delete "${name}"?`)) {
+      const success = await deleteProduct(id);
+      if (success) {
+        alert('✅ Product deleted successfully!');
+      } else {
+        alert('❌ Failed to delete product');
+      }
     }
   };
 
@@ -221,7 +259,7 @@ export default function AdminPanel() {
 
         {/* Search and Stats */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 mb-6">
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
@@ -232,12 +270,22 @@ export default function AdminPanel() {
                 className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
               />
             </div>
-            <button
-              onClick={() => window.location.reload()}
-              className="p-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors"
-            >
-              <RefreshCw className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={openAddModal}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-bold"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Add Product</span>
+              </button>
+              <button
+                onClick={() => window.location.reload()}
+                className="p-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors shadow-md"
+                title="Refresh List"
+              >
+                <RefreshCw className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Stats */}
@@ -282,39 +330,52 @@ export default function AdminPanel() {
                 </div>
               }
             >
-              <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full">
+              <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 h-full flex flex-col">
                 {/* Product Image */}
-                <div className="relative h-48 bg-gray-100">
+                <div className="relative h-64 bg-gray-100 overflow-hidden shrink-0">
                   <LazyImage
                     src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute top-2 right-2 bg-purple-600 text-white px-2 py-1 rounded-full text-xs font-mono font-bold z-10">
+                  <div className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 rounded-full text-xs font-mono font-bold z-10 shadow-lg">
                     {product.productCode || `LC-${product.id.slice(-3)}`}
                   </div>
                 </div>
 
                 {/* Product Info */}
-                <div className="p-4">
-                  <h3 className="font-bold text-lg text-gray-900 mb-1 truncate">{product.name}</h3>
-                  <p className="text-sm text-gray-600 mb-2">{product.category}</p>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-2xl font-bold text-purple-600">₹{product.price.toLocaleString()}</span>
-                    {product.color && (
-                      <span className="text-xs bg-gray-100 px-2 py-1 rounded">{product.color}</span>
-                    )}
+                <div className="p-4 flex flex-col flex-1">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-1">{product.name}</h3>
+                    <p className="text-sm text-gray-500 mb-2 font-medium">{product.category}</p>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-2xl font-black text-purple-600">₹{product.price.toLocaleString()}</span>
+                      {product.color && (
+                        <span className="text-[10px] uppercase tracking-wider bg-purple-50 text-purple-600 px-2 py-1 rounded-full border border-purple-100 font-bold">
+                          {product.color}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-500 mb-4 line-clamp-2 leading-relaxed h-8">{product.description}</p>
                   </div>
-                  <p className="text-xs text-gray-500 mb-4 line-clamp-2">{product.description}</p>
 
-                  {/* Action Button */}
-                  <button
-                    onClick={() => openEditModal(product)}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
-                  >
-                    <Edit className="w-4 h-4" />
-                    <span>Edit Product</span>
-                  </button>
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 mt-auto">
+                    <button
+                      onClick={() => openEditModal(product)}
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg transition-all duration-200 shadow-sm hover:shadow-md text-sm font-bold"
+                    >
+                      <Edit className="w-4 h-4" />
+                      <span>Edit</span>
+                    </button>
+                    <button
+                      onClick={() => handleDelete(product.id, product.name)}
+                      className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-all duration-200 border border-red-100"
+                      title="Delete Product"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </LazyLoad>
@@ -329,16 +390,16 @@ export default function AdminPanel() {
         )}
       </div>
 
-      {/* Edit Product Modal */}
-      {selectedProduct && (
+      {/* Modal */}
+      {(selectedProduct || isAdding) && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-white sticky top-0 z-10">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold">Edit Product</h2>
-                  <p className="text-purple-100 font-mono text-sm">{editForm.productCode}</p>
+                  <h2 className="text-2xl font-bold">{isAdding ? 'Add New Product' : 'Edit Product'}</h2>
+                  <p className="text-purple-100 font-mono text-sm">{editForm.productCode || 'New'}</p>
                 </div>
                 <button
                   onClick={closeModal}
@@ -365,7 +426,7 @@ export default function AdminPanel() {
                   <div className="flex-1">
                     <label className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg cursor-pointer transition-colors border-2 border-dashed border-gray-300">
                       <Upload className="w-5 h-5" />
-                      <span>{uploading ? 'Uploading...' : 'Upload New Image'}</span>
+                      <span>{uploading ? 'Uploading...' : 'Upload Image'}</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -472,12 +533,12 @@ export default function AdminPanel() {
                   {saving ? (
                     <>
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Saving...</span>
+                      <span>{isAdding ? 'Adding...' : 'Saving...'}</span>
                     </>
                   ) : (
                     <>
                       <Save className="w-5 h-5" />
-                      <span>Save Changes</span>
+                      <span>{isAdding ? 'Create Product' : 'Save Changes'}</span>
                     </>
                   )}
                 </button>

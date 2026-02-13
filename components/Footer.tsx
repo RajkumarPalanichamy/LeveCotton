@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Instagram, Facebook, Phone, MapPin, Heart } from 'lucide-react';
 
 export const Footer = () => {
+  // Updated business address
   return (
     <footer className="bg-gradient-to-b from-gray-50 to-white border-t" style={{ borderColor: '#E5D5C8' }}>
       <div className="container mx-auto px-4 py-16">
@@ -15,7 +16,7 @@ export const Footer = () => {
                 Discover premium fashion that celebrates timeless elegance with modern style. Quality craftsmanship in every piece.
               </p>
             </div>
-            
+
             <div>
               <h4 className="text-sm font-semibold mb-3 tracking-wide" style={{ color: '#6D3B2C' }}>FOLLOW US</h4>
               <div className="flex space-x-4">
@@ -52,7 +53,7 @@ export const Footer = () => {
                 </Link></li>
               </ul>
             </div>
-            
+
             <div className="bg-pink-50 p-4 rounded-lg">
               <div className="flex items-center mb-2">
                 <Heart className="w-4 h-4 mr-2 text-pink-500" />
@@ -65,7 +66,7 @@ export const Footer = () => {
           {/* Contact Info */}
           <div className="space-y-6">
             <h4 className="text-lg font-semibold mb-6 tracking-wide" style={{ color: '#6D3B2C' }}>GET IN TOUCH</h4>
-            
+
             <div className="space-y-4">
               <div className="flex items-center group">
                 <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-4 group-hover:bg-green-200 transition-colors">
@@ -76,7 +77,7 @@ export const Footer = () => {
                   <p className="text-gray-600">93458 68005</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start group">
                 <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4 mt-1 group-hover:bg-blue-200 transition-colors">
                   <MapPin className="w-4 h-4 text-blue-600" />
@@ -85,9 +86,10 @@ export const Footer = () => {
                   <p className="text-sm font-medium mb-1" style={{ color: '#6D3B2C' }}>Visit Our Store</p>
                   <div className="text-gray-600 text-sm leading-relaxed">
                     <div className="font-medium text-gray-800">LEVE COTTONS</div>
-                    <div>No 5 seeranga street,</div>
-                    <div>Easwaran kovil back side,</div>
-                    <div>Theppakulam, Erode - 638001</div>
+                    <div>1/728, RAYAN KOIL COLONY</div>
+                    <div>KADIKOUNDENPUDUR</div>
+                    <div>VELAYUTHAYAMPALAYAM AVINASHI</div>
+                    <div>641 654</div>
                   </div>
                 </div>
               </div>

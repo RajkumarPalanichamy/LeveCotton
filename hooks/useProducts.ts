@@ -13,6 +13,7 @@ export interface Product {
   color?: string;
   fabric?: string;
   inStock: boolean;
+  productCode?: string;
 }
 
 export function useProducts(filter?: string) {
@@ -28,14 +29,14 @@ export function useProducts(filter?: string) {
     try {
       setLoading(true);
       setError(null);
-      
+
       const url = filter ? `/api/products?filter=${filter}&limit=70` : '/api/products?limit=70';
       const response = await fetch(url);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       console.log('Fetched products:', data);
       setProducts(data.products || []);
@@ -54,7 +55,7 @@ export function useProducts(filter?: string) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(product)
       });
-      
+
       if (response.ok) {
         fetchProducts();
         return true;
@@ -73,7 +74,7 @@ export function useProducts(filter?: string) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, ...product })
       });
-      
+
       if (response.ok) {
         fetchProducts();
         return true;
@@ -92,7 +93,7 @@ export function useProducts(filter?: string) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id })
       });
-      
+
       if (response.ok) {
         fetchProducts();
         return true;

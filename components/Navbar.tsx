@@ -12,7 +12,7 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const categories = [
-    'NEW ARRIVALS', 'COLLECTIONS', 'BEST SELLERS', 'VIDEOS'
+    'NEW ARRIVALS', 'COLLECTIONS', 'BEST SELLERS', 'WHOLESALE', 'VIDEOS'
   ];
 
   return (
@@ -22,9 +22,9 @@ export function Navbar() {
         <div className="flex items-center justify-between">
           {/* Mobile: Menu */}
           <div className="md:hidden">
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               className="p-2"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
@@ -68,15 +68,16 @@ export function Navbar() {
         <div className="container mx-auto px-6 py-3">
           <div className="flex items-center justify-center space-x-12 lg:space-x-16">
             {categories.map((category, index) => (
-              <Link 
+              <Link
                 key={category}
                 href={
                   category === 'BEST SELLERS' ? '/best-sellers' :
-                  category === 'NEW ARRIVALS' ? '/new-arrivals' :
-                  category === 'COLLECTIONS' ? '/collections' :
-                  category === 'VIDEOS' ? '/videos' :
-                  category === 'SALE' ? '/sale' :
-                  `/shop?category=${category}`
+                    category === 'NEW ARRIVALS' ? '/new-arrivals' :
+                      category === 'COLLECTIONS' ? '/collections' :
+                        category === 'WHOLESALE' ? '/wholesale' :
+                          category === 'VIDEOS' ? '/videos' :
+                            category === 'SALE' ? '/sale' :
+                              `/shop?category=${category}`
                 }
                 className="text-xs font-medium tracking-wider hover:opacity-70 transition-opacity"
                 style={{ color: '#6D3B2C' }}
@@ -95,15 +96,16 @@ export function Navbar() {
             {/* Categories */}
             <div className="grid grid-cols-2 gap-2">
               {categories.map(category => (
-                <Link 
+                <Link
                   key={category}
                   href={
                     category === 'BEST SELLERS' ? '/best-sellers' :
-                    category === 'NEW ARRIVALS' ? '/new-arrivals' :
-                    category === 'COLLECTIONS' ? '/collections' :
-                    category === 'VIDEOS' ? '/videos' :
-                    category === 'SALE' ? '/sale' :
-                    `/shop?category=${category}`
+                      category === 'NEW ARRIVALS' ? '/new-arrivals' :
+                        category === 'COLLECTIONS' ? '/collections' :
+                          category === 'WHOLESALE' ? '/wholesale' :
+                            category === 'VIDEOS' ? '/videos' :
+                              category === 'SALE' ? '/sale' :
+                                `/shop?category=${category}`
                   }
                   className="text-xs font-medium tracking-wider py-3 px-2 text-center rounded hover:bg-gray-50 transition-colors"
                   style={{ color: '#6D3B2C' }}

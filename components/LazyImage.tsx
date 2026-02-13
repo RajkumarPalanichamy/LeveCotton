@@ -53,12 +53,12 @@ export function LazyImage({ src, alt, className = '', placeholder = '/placeholde
     }, [src, placeholder]);
 
     return (
-        <div className="relative">
+        <div className={`relative overflow-hidden ${className}`}>
             <img
                 ref={imgRef}
                 src={imageSrc}
                 alt={alt}
-                className={`${className} ${isLoading ? 'blur-sm' : 'blur-0'} transition-all duration-300`}
+                className={`w-full h-full object-cover ${isLoading ? 'blur-sm' : 'blur-0'} transition-all duration-300`}
                 loading="lazy"
             />
             {isLoading && (
