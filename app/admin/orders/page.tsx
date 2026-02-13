@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
-import { LogOut, Package, Filter, Search, RefreshCw, Eye, CheckCircle, XCircle, Clock, Truck } from 'lucide-react';
+import { LogOut, Package, Filter, Search, RefreshCw, Eye, CheckCircle, XCircle, Clock, Truck, Mail, FileText } from 'lucide-react';
 
 interface Order {
     id: string;
@@ -31,6 +31,7 @@ export default function OrdersPage() {
     const [statusFilter, setStatusFilter] = useState<string>('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+    const [sendingEmail, setSendingEmail] = useState(false);
 
     // Authentication check
     useEffect(() => {
@@ -104,10 +105,90 @@ export default function OrdersPage() {
 
             if (response.ok) {
                 fetchOrders(); // Refresh orders
-                setSelectedOrder(null);
+                // Update selected order if it's still open
+                if (selectedOrder && selectedOrder.id === orderId) {
+                    const updatedOrder = { ...selectedOrder, order_status: orderStatus };
+                    if (paymentStatus) updatedOrder.payment_status = paymentStatus;
+                    setSelectedOrder(updatedOrder);
+                }
             }
         } catch (error) {
             console.error('Failed to update order:', error);
+        }
+    };
+
+    const sendStatusUpdateEmail = async (order: Order) => {
+        if (!order.customer_email) {
+            alert('Customer email not available');
+            return;
+        }
+
+        setSendingEmail(true);
+        try {
+            const response = await fetch('/api/email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'status_update',
+                    orderData: {
+                        orderId: order.id,
+                        customerName: order.customer_name,
+                        customerEmail: order.customer_email,
+                        orderStatus: order.order_status,
+                    }
+                })
+            });
+
+            if (response.ok) {
+                alert('✅ Status update email sent successfully!');
+            } else {
+                alert('❌ Failed to send email');
+            }
+        } catch (error) {
+            console.error('Error sending status update email:', error);
+            alert('❌ Failed to send email');
+        } finally {
+            setSendingEmail(false);
+        }
+    };
+
+    const sendInvoiceEmail = async (order: Order) => {
+        if (!order.customer_email) {
+            alert('Customer email not available');
+            return;
+        }
+
+        setSendingEmail(true);
+        try {
+            const response = await fetch('/api/email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'invoice',
+                    orderData: {
+                        orderId: order.id,
+                        customerName: order.customer_name,
+                        customerEmail: order.customer_email,
+                        customerPhone: order.customer_phone,
+                        items: order.items,
+                        totalAmount: order.total_amount,
+                        shippingAddress: order.shipping_address,
+                        orderDate: order.created_at,
+                        paymentMethod: order.order_type === 'online' ? 'Online Payment (Razorpay)' : 'Cash on Delivery',
+                    }
+                })
+            });
+
+            if (response.ok) {
+                alert('✅ Invoice email sent successfully!');
+            } else {
+                alert('❌ Failed to send invoice');
+            }
+        } catch (error) {
+            console.error('Error sending invoice email:', error);
+            alert('❌ Failed to send invoice');
+        } finally {
+            setSendingEmail(false);
         }
     };
 
@@ -387,6 +468,37 @@ export default function OrdersPage() {
                         </div>
 
                         <div className="p-6 space-y-6">
+                            {/* Email Actions */}
+                            {selectedOrder.customer_email && (
+                                <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200">
+                                    <h3 className="font-bold text-sm mb-3 text-gray-900">📧 Email Actions</h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        <button
+                                            onClick={() => sendStatusUpdateEmail(selectedOrder)}
+                                            disabled={sendingEmail}
+                                            className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <Mail className="w-4 h-4" />
+                                            <span className="text-sm">Send Status Update</span>
+                                        </button>
+                                        <button
+                                            onClick={() => sendInvoiceEmail(selectedOrder)}
+                                            disabled={sendingEmail}
+                                            className="flex items-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            <FileText className="w-4 h-4" />
+                                            <span className="text-sm">Send Invoice</span>
+                                        </button>
+                                    </div>
+                                    {sendingEmail && (
+                                        <p className="text-sm text-blue-600 mt-2 flex items-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                                            Sending email...
+                                        </p>
+                                    )}
+                                </div>
+                            )}
+
                             {/* Customer Info */}
                             <div>
                                 <h3 className="font-bold text-lg mb-3 text-gray-900">Customer Information</h3>
@@ -430,7 +542,7 @@ export default function OrdersPage() {
                                         <label className="block text-sm font-semibold mb-2">Order Status</label>
                                         <select
                                             className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
-                                            defaultValue={selectedOrder.order_status}
+                                            value={selectedOrder.order_status}
                                             onChange={(e) => updateOrderStatus(selectedOrder.id, e.target.value)}
                                         >
                                             <option value="pending">Pending</option>
@@ -444,7 +556,7 @@ export default function OrdersPage() {
                                         <label className="block text-sm font-semibold mb-2">Payment Status</label>
                                         <select
                                             className="w-full p-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
-                                            defaultValue={selectedOrder.payment_status}
+                                            value={selectedOrder.payment_status}
                                             onChange={(e) => updateOrderStatus(selectedOrder.id, selectedOrder.order_status, e.target.value)}
                                         >
                                             <option value="pending">Pending</option>

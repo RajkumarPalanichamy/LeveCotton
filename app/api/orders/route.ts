@@ -64,6 +64,44 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Failed to create order', details: error.message }, { status: 500 });
         }
 
+        // Send email notifications (don't wait for them to complete)
+        if (body.customerEmail) {
+            // Send order confirmation to customer
+            fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/email`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'order_confirmation',
+                    orderData: {
+                        orderId,
+                        customerName: body.customerName,
+                        customerEmail: body.customerEmail,
+                        items: body.items || [],
+                        totalAmount: body.totalAmount,
+                        shippingAddress: body.shippingAddress,
+                        orderType: body.orderType || 'whatsapp',
+                    }
+                })
+            }).catch(err => console.error('Failed to send confirmation email:', err));
+
+            // Send admin notification
+            fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/email`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'admin_notification',
+                    orderData: {
+                        orderId,
+                        customerName: body.customerName,
+                        customerEmail: body.customerEmail,
+                        customerPhone: body.customerPhone,
+                        totalAmount: body.totalAmount,
+                        orderType: body.orderType || 'whatsapp',
+                    }
+                })
+            }).catch(err => console.error('Failed to send admin notification:', err));
+        }
+
         return NextResponse.json({ success: true, orderId });
     } catch (error) {
         return NextResponse.json({ error: 'Failed to create order' }, { status: 500 });
