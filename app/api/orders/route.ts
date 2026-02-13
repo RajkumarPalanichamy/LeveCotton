@@ -108,6 +108,7 @@ export async function POST(request: NextRequest) {
     }
 }
 
+
 // UPDATE order status
 export async function PUT(request: NextRequest) {
     try {
@@ -124,6 +125,55 @@ export async function PUT(request: NextRequest) {
 
         if (error) {
             return NextResponse.json({ error: 'Failed to update order' }, { status: 500 });
+        }
+
+        // Fetch the updated order to send emails
+        const { data: order } = await supabaseAdmin
+            .from('orders')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        // Send emails if customer has email
+        if (order && order.customer_email) {
+            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
+            // Send status update email
+            if (orderStatus) {
+                fetch(`${baseUrl}/api/email`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'status_update',
+                        orderData: {
+                            orderId: order.id,
+                            customerName: order.customer_name,
+                            customerEmail: order.customer_email,
+                            orderStatus: order.order_status,
+                        }
+                    })
+                }).catch(err => console.error('Failed to send status update email:', err));
+            }
+
+            // Send invoice email automatically when status is updated
+            fetch(`${baseUrl}/api/email`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'invoice',
+                    orderData: {
+                        orderId: order.id,
+                        customerName: order.customer_name,
+                        customerEmail: order.customer_email,
+                        customerPhone: order.customer_phone,
+                        items: order.items,
+                        totalAmount: order.total_amount,
+                        shippingAddress: order.shipping_address,
+                        orderDate: order.created_at,
+                        paymentMethod: order.order_type === 'online' ? 'Online Payment (Razorpay)' : 'Cash on Delivery',
+                    }
+                })
+            }).catch(err => console.error('Failed to send invoice email:', err));
         }
 
         return NextResponse.json({ success: true });

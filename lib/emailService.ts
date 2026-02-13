@@ -2,40 +2,40 @@ import nodemailer from 'nodemailer';
 
 // Create reusable transporter
 const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false, // true for 465, false for other ports
-    auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD,
-    },
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.SMTP_PORT || '587'),
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD,
+  },
 });
 
 // Verify transporter configuration
 export const verifyEmailConfig = async () => {
-    try {
-        await transporter.verify();
-        console.log('Email server is ready to send messages');
-        return true;
-    } catch (error) {
-        console.error('Email configuration error:', error);
-        return false;
-    }
+  try {
+    await transporter.verify();
+    console.log('Email server is ready to send messages');
+    return true;
+  } catch (error) {
+    console.error('Email configuration error:', error);
+    return false;
+  }
 };
 
 // Send order confirmation email to customer
 export const sendOrderConfirmationEmail = async (orderData: {
-    orderId: string;
-    customerName: string;
-    customerEmail: string;
-    items: any[];
-    totalAmount: number;
-    shippingAddress: string;
-    orderType: string;
+  orderId: string;
+  customerName: string;
+  customerEmail: string;
+  items: any[];
+  totalAmount: number;
+  shippingAddress: string;
+  orderType: string;
 }) => {
-    const { orderId, customerName, customerEmail, items, totalAmount, shippingAddress, orderType } = orderData;
+  const { orderId, customerName, customerEmail, items, totalAmount, shippingAddress, orderType } = orderData;
 
-    const itemsHtml = items.map(item => `
+  const itemsHtml = items.map(item => `
     <tr>
       <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
       <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
@@ -44,11 +44,11 @@ export const sendOrderConfirmationEmail = async (orderData: {
     </tr>
   `).join('');
 
-    const mailOptions = {
-        from: `"LeveCotton" <${process.env.SMTP_USER}>`,
-        to: customerEmail,
-        subject: `Order Confirmation - ${orderId}`,
-        html: `
+  const mailOptions = {
+    from: `"LeveCotton" <${process.env.SMTP_USER}>`,
+    to: customerEmail,
+    subject: `Order Confirmation - ${orderId}`,
+    html: `
       <!DOCTYPE html>
       <html>
       <head>
@@ -72,10 +72,10 @@ export const sendOrderConfirmationEmail = async (orderData: {
             <p><strong>Order ID:</strong> ${orderId}</p>
             <p><strong>Order Type:</strong> ${orderType === 'online' ? 'Online Payment' : 'WhatsApp Order'}</p>
             <p><strong>Order Date:</strong> ${new Date().toLocaleDateString('en-IN', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        })}</p>
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })}</p>
           </div>
 
           <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -112,50 +112,50 @@ export const sendOrderConfirmationEmail = async (orderData: {
           </div>
 
           <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
-            <p style="color: #666; font-size: 14px;">Need help? Contact us at support@levecotton.com</p>
+            <p style="color: #666; font-size: 14px;">Need help? Contact us at ${process.env.SUPPORT_PHONE || '+91 93458 68005'}</p>
             <p style="color: #666; font-size: 12px; margin-top: 20px;">© 2026 LeveCotton. All rights reserved.</p>
           </div>
         </div>
       </body>
       </html>
     `,
-    };
+  };
 
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log(`Order confirmation email sent to ${customerEmail}`);
-        return true;
-    } catch (error) {
-        console.error('Error sending order confirmation email:', error);
-        return false;
-    }
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Order confirmation email sent to ${customerEmail}`);
+    return true;
+  } catch (error) {
+    console.error('Error sending order confirmation email:', error);
+    return false;
+  }
 };
 
 // Send order status update email
 export const sendOrderStatusUpdateEmail = async (orderData: {
-    orderId: string;
-    customerName: string;
-    customerEmail: string;
-    orderStatus: string;
-    trackingNumber?: string;
+  orderId: string;
+  customerName: string;
+  customerEmail: string;
+  orderStatus: string;
+  trackingNumber?: string;
 }) => {
-    const { orderId, customerName, customerEmail, orderStatus, trackingNumber } = orderData;
+  const { orderId, customerName, customerEmail, orderStatus, trackingNumber } = orderData;
 
-    const statusMessages = {
-        pending: { title: 'Order Received', message: 'We have received your order and will start processing it soon.' },
-        processing: { title: 'Order Processing', message: 'Your order is being prepared for shipment.' },
-        shipped: { title: 'Order Shipped! 📦', message: 'Your order is on its way!' },
-        delivered: { title: 'Order Delivered! 🎉', message: 'Your order has been delivered. We hope you love it!' },
-        cancelled: { title: 'Order Cancelled', message: 'Your order has been cancelled as requested.' },
-    };
+  const statusMessages = {
+    pending: { title: 'Order Received', message: 'We have received your order and will start processing it soon.' },
+    processing: { title: 'Order Processing', message: 'Your order is being prepared for shipment.' },
+    shipped: { title: 'Order Shipped! 📦', message: 'Your order is on its way!' },
+    delivered: { title: 'Order Delivered! 🎉', message: 'Your order has been delivered. We hope you love it!' },
+    cancelled: { title: 'Order Cancelled', message: 'Your order has been cancelled as requested.' },
+  };
 
-    const status = statusMessages[orderStatus as keyof typeof statusMessages] || statusMessages.pending;
+  const status = statusMessages[orderStatus as keyof typeof statusMessages] || statusMessages.pending;
 
-    const mailOptions = {
-        from: `"LeveCotton" <${process.env.SMTP_USER}>`,
-        to: customerEmail,
-        subject: `${status.title} - Order ${orderId}`,
-        html: `
+  const mailOptions = {
+    from: `"LeveCotton" <${process.env.SMTP_USER}>`,
+    to: customerEmail,
+    subject: `${status.title} - Order ${orderId}`,
+    html: `
       <!DOCTYPE html>
       <html>
       <head>
@@ -180,12 +180,12 @@ export const sendOrderStatusUpdateEmail = async (orderData: {
             <p><strong>Status:</strong> <span style="color: #9333EA; text-transform: uppercase; font-weight: bold;">${orderStatus}</span></p>
             ${trackingNumber ? `<p><strong>Tracking Number:</strong> ${trackingNumber}</p>` : ''}
             <p><strong>Updated:</strong> ${new Date().toLocaleDateString('en-IN', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        })}</p>
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })}</p>
           </div>
 
           ${orderStatus === 'shipped' ? `
@@ -196,40 +196,40 @@ export const sendOrderStatusUpdateEmail = async (orderData: {
           ` : ''}
 
           <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
-            <p style="color: #666; font-size: 14px;">Questions? Contact us at support@levecotton.com</p>
+            <p style="color: #666; font-size: 14px;">Questions? Contact us at ${process.env.SUPPORT_PHONE || '+91 93458 68005'}</p>
             <p style="color: #666; font-size: 12px; margin-top: 20px;">© 2026 LeveCotton. All rights reserved.</p>
           </div>
         </div>
       </body>
       </html>
     `,
-    };
+  };
 
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log(`Order status update email sent to ${customerEmail}`);
-        return true;
-    } catch (error) {
-        console.error('Error sending order status update email:', error);
-        return false;
-    }
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Order status update email sent to ${customerEmail}`);
+    return true;
+  } catch (error) {
+    console.error('Error sending order status update email:', error);
+    return false;
+  }
 };
 
 // Send invoice email
 export const sendInvoiceEmail = async (orderData: {
-    orderId: string;
-    customerName: string;
-    customerEmail: string;
-    customerPhone: string;
-    items: any[];
-    totalAmount: number;
-    shippingAddress: string;
-    orderDate: string;
-    paymentMethod: string;
+  orderId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  items: any[];
+  totalAmount: number;
+  shippingAddress: string;
+  orderDate: string;
+  paymentMethod: string;
 }) => {
-    const { orderId, customerName, customerEmail, customerPhone, items, totalAmount, shippingAddress, orderDate, paymentMethod } = orderData;
+  const { orderId, customerName, customerEmail, customerPhone, items, totalAmount, shippingAddress, orderDate, paymentMethod } = orderData;
 
-    const itemsHtml = items.map((item, index) => `
+  const itemsHtml = items.map((item, index) => `
     <tr>
       <td style="padding: 10px; border-bottom: 1px solid #eee;">${index + 1}</td>
       <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
@@ -239,15 +239,15 @@ export const sendInvoiceEmail = async (orderData: {
     </tr>
   `).join('');
 
-    const subtotal = totalAmount;
-    const tax = 0; // Add tax calculation if needed
-    const shipping = 0; // Add shipping cost if needed
+  const subtotal = totalAmount;
+  const tax = 0; // Add tax calculation if needed
+  const shipping = 0; // Add shipping cost if needed
 
-    const mailOptions = {
-        from: `"LeveCotton" <${process.env.SMTP_USER}>`,
-        to: customerEmail,
-        subject: `Invoice - ${orderId}`,
-        html: `
+  const mailOptions = {
+    from: `"LeveCotton" <${process.env.SMTP_USER}>`,
+    to: customerEmail,
+    subject: `Invoice - ${orderId}`,
+    html: `
       <!DOCTYPE html>
       <html>
       <head>
@@ -334,7 +334,7 @@ export const sendInvoiceEmail = async (orderData: {
             <!-- Footer -->
             <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #eee; text-align: center;">
               <p style="color: #666; font-size: 14px; margin: 5px 0;">Thank you for your business!</p>
-              <p style="color: #666; font-size: 12px; margin: 5px 0;">For any queries, contact us at support@levecotton.com</p>
+              <p style="color: #666; font-size: 12px; margin: 5px 0;">For any queries, contact us at ${process.env.SUPPORT_PHONE || '+91 93458 68005'}</p>
               <p style="color: #999; font-size: 11px; margin: 20px 0 0 0;">© 2026 LeveCotton. All rights reserved.</p>
             </div>
           </div>
@@ -342,36 +342,36 @@ export const sendInvoiceEmail = async (orderData: {
       </body>
       </html>
     `,
-    };
+  };
 
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log(`Invoice email sent to ${customerEmail}`);
-        return true;
-    } catch (error) {
-        console.error('Error sending invoice email:', error);
-        return false;
-    }
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Invoice email sent to ${customerEmail}`);
+    return true;
+  } catch (error) {
+    console.error('Error sending invoice email:', error);
+    return false;
+  }
 };
 
 // Send admin notification for new order
 export const sendAdminOrderNotification = async (orderData: {
-    orderId: string;
-    customerName: string;
-    customerEmail: string;
-    customerPhone: string;
-    totalAmount: number;
-    orderType: string;
+  orderId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  totalAmount: number;
+  orderType: string;
 }) => {
-    const { orderId, customerName, customerEmail, customerPhone, totalAmount, orderType } = orderData;
+  const { orderId, customerName, customerEmail, customerPhone, totalAmount, orderType } = orderData;
 
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@levecotton.com';
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@levecotton.com';
 
-    const mailOptions = {
-        from: `"LeveCotton System" <${process.env.SMTP_USER}>`,
-        to: adminEmail,
-        subject: `🔔 New Order Received - ${orderId}`,
-        html: `
+  const mailOptions = {
+    from: `"LeveCotton System" <${process.env.SMTP_USER}>`,
+    to: adminEmail,
+    subject: `🔔 New Order Received - ${orderId}`,
+    html: `
       <!DOCTYPE html>
       <html>
       <head>
@@ -406,14 +406,14 @@ export const sendAdminOrderNotification = async (orderData: {
       </body>
       </html>
     `,
-    };
+  };
 
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log(`Admin notification sent for order ${orderId}`);
-        return true;
-    } catch (error) {
-        console.error('Error sending admin notification:', error);
-        return false;
-    }
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Admin notification sent for order ${orderId}`);
+    return true;
+  } catch (error) {
+    console.error('Error sending admin notification:', error);
+    return false;
+  }
 };
