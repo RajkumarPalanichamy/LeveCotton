@@ -13,5 +13,14 @@ module.exports = {
             watch: false,
             max_memory_restart: '1G',
         },
+        {
+            name: 'supabase-keep-alive',
+            script: './scripts/keep-supabase-warm.js',
+            autorestart: true,
+            watch: false,
+            env: {
+                NODE_ENV: 'production',
+            },
+        },
     ],
 };
