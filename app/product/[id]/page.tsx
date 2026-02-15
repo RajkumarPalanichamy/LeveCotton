@@ -11,13 +11,31 @@ interface ProductPageProps {
 }
 
 async function getProduct(id: string) {
-  const { data: product } = await supabase
+  const { data: p } = await supabase
     .from('products')
     .select('*')
     .eq('id', id)
     .single();
 
-  return product;
+  if (!p) return null;
+
+  // Transform DB columns to frontend format
+  return {
+    id: p.id,
+    productCode: p.product_code,
+    name: p.name,
+    price: p.price,
+    originalPrice: p.original_price,
+    discount: p.discount,
+    image: p.image_url,
+    images: p.images || [p.image_url], // Fallback to image_url in array if images list is empty
+    description: p.description,
+    category: p.category,
+    collection: p.collection,
+    color: p.color,
+    fabric: p.fabric,
+    inStock: p.in_stock,
+  };
 }
 
 export async function generateMetadata(

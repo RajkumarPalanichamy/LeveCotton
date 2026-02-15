@@ -23,25 +23,9 @@ export default function WholesalePage() {
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
-    const categories = [
-        'Shirts',
-        'T-Shirts',
-        'Trousers',
-        'Jeans',
-        'Kurtas',
-        'Ethnic Wear',
-        'Accessories',
-        'Others'
-    ];
 
-    const handleCategoryToggle = (category: string) => {
-        setFormData(prev => ({
-            ...prev,
-            productCategories: prev.productCategories.includes(category)
-                ? prev.productCategories.filter(c => c !== category)
-                : [...prev.productCategories, category]
-        }));
-    };
+
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -61,34 +45,6 @@ export default function WholesalePage() {
                 return;
             }
 
-            // After email is sent, open WhatsApp
-            const message = `
-🏢 *WHOLESALE INQUIRY*
-
-*Business Details:*
-Business Name: ${formData.businessName}
-Contact Person: ${formData.contactPerson}
-Email: ${formData.email}
-Phone: ${formData.phone}
-GST Number: ${formData.gstNumber || 'N/A'}
-
-*Address:*
-${formData.address}
-${formData.city}, ${formData.state} - ${formData.pincode}
-
-*Product Requirements:*
-Categories: ${formData.productCategories.join(', ')}
-Estimated Quantity: ${formData.estimatedQuantity}
-
-*Additional Message:*
-${formData.message || 'N/A'}
-      `.trim();
-
-            const whatsappNumber = '919345868005';
-            const encodedMessage = encodeURIComponent(message);
-            const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-
-            window.open(whatsappUrl, '_blank');
             setSubmitted(true);
         } catch (error) {
             alert('Failed to send inquiry. Please try again.');
@@ -108,7 +64,7 @@ ${formData.message || 'N/A'}
                         </div>
                         <h1 className="text-4xl font-bold text-gray-900 mb-4">Thank You!</h1>
                         <p className="text-lg text-gray-600 mb-8">
-                            We've received your wholesale inquiry and opened WhatsApp for you. Our team will get back to you within 24 hours.
+                            We've received your wholesale inquiry. Our team will review your requirements and get back to you within 24 hours.
                         </p>
                         <button
                             onClick={() => window.location.href = '/'}
@@ -306,27 +262,7 @@ ${formData.message || 'N/A'}
                                     Product Requirements
                                 </h2>
                                 <div className="space-y-6">
-                                    <div>
-                                        <label className="block text-sm font-semibold text-gray-700 mb-3">
-                                            Product Categories * (Select all that apply)
-                                        </label>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                            {categories.map((category) => (
-                                                <button
-                                                    key={category}
-                                                    type="button"
-                                                    onClick={() => handleCategoryToggle(category)}
-                                                    className={`px-4 py-3 rounded-lg border-2 font-medium transition-all ${formData.productCategories.includes(category)
-                                                        ? 'text-white border-transparent'
-                                                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
-                                                        }`}
-                                                    style={formData.productCategories.includes(category) ? { backgroundColor: '#6D3B2C' } : {}}
-                                                >
-                                                    {category}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
+
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">
                                             Estimated Monthly Quantity *
@@ -361,16 +297,16 @@ ${formData.message || 'N/A'}
                             <div className="border-t-2 border-gray-100 pt-8">
                                 <button
                                     type="submit"
-                                    disabled={submitting || formData.productCategories.length === 0}
+                                    disabled={submitting}
                                     className="w-full flex items-center justify-center gap-3 px-6 py-4 text-white rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
-                                    style={{ backgroundColor: submitting || formData.productCategories.length === 0 ? '#9ca3af' : '#6D3B2C' }}
+                                    style={{ backgroundColor: submitting ? '#9ca3af' : '#6D3B2C' }}
                                     onMouseEnter={(e) => {
-                                        if (!submitting && formData.productCategories.length > 0) {
+                                        if (!submitting) {
                                             e.currentTarget.style.backgroundColor = '#5a2f23';
                                         }
                                     }}
                                     onMouseLeave={(e) => {
-                                        if (!submitting && formData.productCategories.length > 0) {
+                                        if (!submitting) {
                                             e.currentTarget.style.backgroundColor = '#6D3B2C';
                                         }
                                     }}
@@ -387,13 +323,9 @@ ${formData.message || 'N/A'}
                                         </>
                                     )}
                                 </button>
-                                {formData.productCategories.length === 0 && (
-                                    <p className="text-sm text-red-600 mt-3 text-center">
-                                        Please select at least one product category
-                                    </p>
-                                )}
+
                                 <p className="text-sm text-gray-500 mt-3 text-center">
-                                    Your inquiry will be sent via email and WhatsApp
+                                    Your inquiry will be sent to our wholesale team via email
                                 </p>
                             </div>
                         </form>

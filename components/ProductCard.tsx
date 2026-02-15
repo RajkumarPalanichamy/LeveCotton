@@ -1,11 +1,10 @@
 'use client';
 
-import Image from 'next/image';
-import { WhatsAppButton } from './WhatsAppButton';
-import { RazorpayCheckout } from './RazorpayCheckout';
-import { LazyImage } from './LazyImage';
 import { useState } from 'react';
-import { CreditCard } from 'lucide-react';
+import { CreditCard, ShoppingBag, Check } from 'lucide-react';
+import { useCart } from '@/hooks/useCart';
+import { LazyImage } from './LazyImage';
+import { RazorpayCheckout } from './RazorpayCheckout';
 
 interface Product {
   id: string;
@@ -28,15 +27,10 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const [showOrderForm, setShowOrderForm] = useState(false);
+  const { addToCart } = useCart();
   const [showBuyNow, setShowBuyNow] = useState(false);
+  const [addedToCart, setAddedToCart] = useState(false);
   const [buyNowSuccess, setBuyNowSuccess] = useState<string | null>(null);
-  const [customerInfo, setCustomerInfo] = useState({
-    name: '',
-    phone: '',
-    address: '',
-    quantity: 1
-  });
   const [buyNowInfo, setBuyNowInfo] = useState({
     name: '',
     email: '',
@@ -44,9 +38,14 @@ export function ProductCard({ product }: ProductCardProps) {
     address: '',
   });
 
-  const handleOrderSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setShowOrderForm(false);
+  const handleAddToCart = () => {
+    addToCart({
+      productId: product.id,
+      variantId: 'default',
+      quantity: 1
+    } as any);
+    setAddedToCart(true);
+    setTimeout(() => setAddedToCart(false), 2000);
   };
 
   return (
@@ -109,112 +108,40 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col gap-2">
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowBuyNow(true)}
-              disabled={!product.inStock}
-              className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:bg-gray-400 text-white py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 flex items-center justify-center gap-1.5"
-            >
-              <CreditCard className="w-3.5 h-3.5" />
-              {product.inStock ? 'Buy Now' : 'Out of Stock'}
-            </button>
-            <button
-              onClick={() => setShowOrderForm(true)}
-              disabled={!product.inStock}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200"
-            >
-              Order via WhatsApp
-            </button>
-          </div>
-          <div className="relative">
-            <WhatsAppButton
-              product={product}
-              type="inquiry"
-            />
-          </div>
+        <div className="space-y-2">
+          <button
+            onClick={() => setShowBuyNow(true)}
+            disabled={!product.inStock}
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:bg-gray-400 text-white py-3 px-4 rounded-xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
+          >
+            <CreditCard className="w-4 h-4" />
+            {product.inStock ? 'Buy Now' : 'Out of Stock'}
+          </button>
+
+          <button
+            onClick={handleAddToCart}
+            disabled={!product.inStock}
+            className={`w-full py-3 px-4 rounded-xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 border-2 ${addedToCart
+              ? 'bg-green-50 border-green-500 text-green-600'
+              : 'bg-white border-purple-100 text-purple-600 hover:bg-purple-50 hover:border-purple-200'
+              }`}
+          >
+            {addedToCart ? (
+              <>
+                <Check className="w-4 h-4" />
+                Added!
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="w-4 h-4" />
+                Add to Cart
+              </>
+            )}
+          </button>
         </div>
       </div>
 
-      {/* Order Form Modal */}
-      {showOrderForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Place Order</h3>
 
-            <form onSubmit={handleOrderSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={customerInfo.name}
-                  onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Phone Number *
-                </label>
-                <input
-                  type="tel"
-                  required
-                  value={customerInfo.phone}
-                  onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Address *
-                </label>
-                <textarea
-                  required
-                  value={customerInfo.address}
-                  onChange={(e) => setCustomerInfo({ ...customerInfo, address: e.target.value })}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows={3}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Quantity
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={customerInfo.quantity}
-                  onChange={(e) => setCustomerInfo({ ...customerInfo, quantity: parseInt(e.target.value) })}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowOrderForm(false)}
-                  className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-
-                <WhatsAppButton
-                  product={product}
-                  customerInfo={customerInfo}
-                  type="order"
-                />
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Buy Now Modal */}
       {showBuyNow && (

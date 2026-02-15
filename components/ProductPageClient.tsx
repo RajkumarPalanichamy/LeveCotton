@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ShoppingBag, CreditCard, MessageCircle } from 'lucide-react';
+import { ShoppingBag, CreditCard } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { RazorpayCheckout } from '@/components/RazorpayCheckout';
 
@@ -48,12 +48,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
     } as any);
   };
 
-  const handleBuyNow = () => {
-    const message = `Hi LEVE COTTONS! I want to buy this product:\n\n*${product.name}*\nPrice: ₹${product.price.toLocaleString('en-IN')}\n${selectedSize ? `Size: ${selectedSize}` : ''}\n${selectedColor ? `Color: ${selectedColor}` : ''}\n\nProduct Image: ${window.location.origin}${product.image}\n\nPlease confirm availability and delivery details.`;
 
-    const encodedMessage = encodeURIComponent(message);
-    window.open(`https://wa.me/919345868005?text=${encodedMessage}`, '_blank');
-  };
 
   return (
     <div className="bg-gradient-to-br from-pink-50 via-white to-purple-50 min-h-screen">
@@ -145,34 +140,24 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                 </div>
               )}
 
-              {/* Action Buttons */}
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
                 <button
                   onClick={() => setShowBuyNow(true)}
                   disabled={!product.inStock}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-8 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-8 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3"
                 >
                   <CreditCard className="w-6 h-6" />
                   Buy Now
                 </button>
 
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleAddToCart}
-                    className="flex-1 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white py-4 px-8 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
-                  >
-                    <ShoppingBag className="w-5 h-5" />
-                    Add to Cart
-                  </button>
-
-                  <button
-                    onClick={handleBuyNow}
-                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white py-4 px-8 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-3"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    WhatsApp
-                  </button>
-                </div>
+                <button
+                  onClick={handleAddToCart}
+                  disabled={!product.inStock}
+                  className="flex-1 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white py-4 px-8 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3"
+                >
+                  <ShoppingBag className="w-5 h-5" />
+                  Add to Cart
+                </button>
               </div>
             </div>
 

@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Providers } from "@/components/providers";
 import { Footer } from "@/components/Footer";
-import { WhatsAppButton } from "@/components/WhatsAppButton";
+
 import { InstagramButton } from "@/components/InstagramButton";
 import "./globals.css";
 import type { Metadata } from 'next';
@@ -83,7 +83,7 @@ export const metadata: Metadata = {
     shortcut: '/favicon-16x16.png',
     apple: '/apple-touch-icon.png',
   },
-  manifest: `${siteConfig.url}/site.webmanifest`,
+  manifest: '/site.webmanifest',
 };
 
 import { JsonLd } from "@/components/JsonLd";
@@ -135,7 +135,7 @@ export default function RootLayout({
           {children}
           <Footer />
           <InstagramButton />
-          <WhatsAppButton />
+
         </Providers>
       </body>
     </html>
