@@ -277,7 +277,8 @@ export default function AdminPanel() {
               />
             </div>
             <div className="flex items-center gap-2">
-              <button
+              {/* Add Product button hidden as per request */}
+              {/* <button
                 onClick={openAddModal}
                 className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-bold ${isLimitReached
                   ? 'bg-gray-400 text-white cursor-not-allowed'
@@ -286,7 +287,7 @@ export default function AdminPanel() {
               >
                 <Plus className="w-5 h-5" />
                 <span>Add Product</span>
-              </button>
+              </button> */}
               <button
                 onClick={() => window.location.reload()}
                 className="p-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors shadow-md"
