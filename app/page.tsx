@@ -8,10 +8,10 @@ import { Banner } from '@/components/Banner';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
 import Link from 'next/link';
 
+import Image from 'next/image';
+
 const desktopImages = ['/1.png', '/2.png', '/3.png'];
 const mobileImages = ['/8.png', '/9.png', '/10.png'];
-
-
 
 export default function Home() {
   const [currentImage, setCurrentImage] = useState(0);
@@ -34,39 +34,43 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white" style={{ backgroundColor: 'white' }}>
       <Navbar />
-      
+
       <div className="relative h-screen overflow-hidden">
         {/* Desktop Images */}
-        <div className="hidden md:block">
+        <div className="hidden md:block h-full">
           {desktopImages.map((image, index) => (
             <div
               key={index}
-              className={`absolute inset-0 transition-opacity duration-1000 ${
-                index === currentImage ? 'opacity-100' : 'opacity-0'
-              }`}
+              className={`absolute inset-0 transition-opacity duration-1000 ${index === currentImage ? 'opacity-100' : 'opacity-0'
+                }`}
             >
-              <img
+              <Image
                 src={image}
-                alt={`Desktop landing image ${index + 1}`}
-                className="w-full h-full object-cover"
+                alt={`Leve Cottons Premium Collection - Slide ${index + 1}`}
+                fill
+                priority={index === 0}
+                className="object-cover"
+                sizes="100vw"
               />
             </div>
           ))}
         </div>
-        
+
         {/* Mobile Images */}
-        <div className="md:hidden">
+        <div className="md:hidden h-full">
           {mobileImages.map((image, index) => (
             <div
               key={index}
-              className={`absolute inset-0 transition-opacity duration-1000 ${
-                index === currentImage ? 'opacity-100' : 'opacity-0'
-              }`}
+              className={`absolute inset-0 transition-opacity duration-1000 ${index === currentImage ? 'opacity-100' : 'opacity-0'
+                }`}
             >
-              <img
+              <Image
                 src={image}
-                alt={`Mobile landing image ${index + 1}`}
-                className="w-full h-full object-cover"
+                alt={`Leve Cottons Trendy Styles - Mobile Slide ${index + 1}`}
+                fill
+                priority={index === 0}
+                className="object-cover"
+                sizes="100vw"
               />
             </div>
           ))}
@@ -75,13 +79,15 @@ export default function Home() {
         <button
           onClick={prevImage}
           className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+          aria-label="Previous Slide"
         >
           <ChevronLeft className="w-6 h-6 text-white" />
         </button>
-        
+
         <button
           onClick={nextImage}
           className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors"
+          aria-label="Next Slide"
         >
           <ChevronRight className="w-6 h-6 text-white" />
         </button>
@@ -91,42 +97,62 @@ export default function Home() {
             <button
               key={index}
               onClick={() => setCurrentImage(index)}
-              className={`w-3 h-3 rounded-full transition-colors ${
-                index === currentImage ? 'bg-white' : 'bg-white/50'
-              }`}
+              className={`w-3 h-3 rounded-full transition-colors ${index === currentImage ? 'bg-white' : 'bg-white/50'
+                }`}
+              aria-label={`Go to slide ${index + 1}`}
             />
           ))}
         </div>
       </div>
 
       <NewArrivals />
-      
+
       {/* Featured Categories */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-serif text-center text-gray-900 mb-12">Shop by Category</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Link href="/new-arrivals" className="group cursor-pointer">
-              <div className="aspect-square overflow-hidden rounded-lg mb-4">
-                <img src="/products/1.jpg" alt="New Arrival Sarees" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <div className="aspect-square overflow-hidden rounded-lg mb-4 relative">
+                <Image
+                  src="/products/1.jpg"
+                  alt="Explore our New Arrival Sarees - Latest Designs"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                />
               </div>
               <h3 className="text-xl font-medium text-center">New Arrival Sarees</h3>
             </Link>
             <Link href="/best-sellers" className="group cursor-pointer">
-              <div className="aspect-square overflow-hidden rounded-lg mb-4">
-                <img src="/products/7.jpg" alt="Best Seller Sarees" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <div className="aspect-square overflow-hidden rounded-lg mb-4 relative">
+                <Image
+                  src="/products/7.jpg"
+                  alt="Shop our Best Seller Sarees - Customer Favorites"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                />
               </div>
               <h3 className="text-xl font-medium text-center">Best Seller Sarees</h3>
             </Link>
             <Link href="/collections" className="group cursor-pointer">
-              <div className="aspect-square overflow-hidden rounded-lg mb-4">
-                <img src="/products/13.jpg" alt="Designer Collections" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <div className="aspect-square overflow-hidden rounded-lg mb-4 relative">
+                <Image
+                  src="/products/13.jpg"
+                  alt="View our Exclusive Designer Collections"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                />
               </div>
               <h3 className="text-xl font-medium text-center">Designer Collections</h3>
             </Link>
             <Link href="/sale" className="group cursor-pointer">
-              <div className="aspect-square overflow-hidden rounded-lg mb-4">
-                <img src="/products/19.jpg" alt="Sale Sarees" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <div className="aspect-square overflow-hidden rounded-lg mb-4 relative">
+                <Image
+                  src="/products/19.jpg"
+                  alt="Avail discounts on our Sale Sarees"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                />
               </div>
               <h3 className="text-xl font-medium text-center">Sale Sarees</h3>
             </Link>

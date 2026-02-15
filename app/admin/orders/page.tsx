@@ -620,7 +620,7 @@ export default function OrdersPage() {
                         <div className="text-center mb-4 border-b pb-2 border-black border-dashed">
                             <h1 className="text-xl font-bold uppercase">LEVE COTTONS</h1>
                             <p className="text-[10px]">where tradition meets trend</p>
-                            <p className="text-[10px] mt-1">Visit: www.levecotton.com</p>
+                            <p className="text-[10px] mt-1">Visit: www.levecottons.com</p>
                             <p className="text-[10px]">Phone: +91 93458 68005</p>
                         </div>
 
