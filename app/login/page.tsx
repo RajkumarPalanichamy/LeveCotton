@@ -97,7 +97,7 @@ export default function LoginPage() {
                                 </div>
                                 <input
                                     type="email"
-                                    placeholder="admin@levecotton.com"
+                                    placeholder="example@example.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none transition-colors"
