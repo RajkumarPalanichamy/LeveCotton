@@ -400,7 +400,7 @@ export const sendAdminOrderNotification = async (orderData: {
           </div>
 
           <div style="text-align: center; margin-top: 30px;">
-            <a href="http://localhost:3000/admin/orders" style="display: inline-block; background: linear-gradient(135deg, #9333EA 0%, #EC4899 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">View Order Details</a>
+            <a href="https://levecottons.com/admin/orders" style="display: inline-block; background: linear-gradient(135deg, #9333EA 0%, #EC4899 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">View Order Details</a>
           </div>
         </div>
       </body>

@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
         // Send email notifications (don't wait for them to complete)
         if (body.customerEmail) {
             // Send order confirmation to customer
-            fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/email`, {
+            fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3030'}/api/email`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
             }).catch(err => console.error('Failed to send confirmation email:', err));
 
             // Send admin notification
-            fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/email`, {
+            fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3030'}/api/email`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -136,7 +136,7 @@ export async function PUT(request: NextRequest) {
 
         // Send emails if customer has email
         if (order && order.customer_email) {
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3030';
 
             // Send status update email
             if (orderStatus) {
