@@ -2,16 +2,21 @@ import { Suspense } from 'react';
 import { Metadata, ResolvingMetadata } from 'next';
 import { Navbar } from '@/components/Navbar';
 import ProductPageClient from '@/components/ProductPageClient';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 import { notFound } from 'next/navigation';
 import { JsonLd } from '@/components/JsonLd';
+
+// Force dynamic rendering on every request — prevents Next.js from caching
+// product data across different product IDs in production.
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 interface ProductPageProps {
   params: { id: string };
 }
 
 async function getProduct(id: string) {
-  const { data: p } = await supabase
+  const { data: p } = await supabaseAdmin
     .from('products')
     .select('*')
     .eq('id', id)
