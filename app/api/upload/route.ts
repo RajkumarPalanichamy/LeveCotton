@@ -27,7 +27,12 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
-      console.error('Supabase upload error:', uploadError);
+      console.error('Supabase upload error details:', {
+        message: uploadError.message,
+        name: uploadError.name,
+        stack: uploadError.stack,
+        fileName
+      });
       // Fallback to base64 if storage fails
       const base64 = buffer.toString('base64');
       const imageUrl = `data:${file.type};base64,${base64}`;
@@ -39,12 +44,31 @@ export async function POST(request: NextRequest) {
       .from('product-images')
       .getPublicUrl(fileName);
 
+    if (!publicUrlData.publicUrl) {
+      console.error('Failed to get public URL for:', fileName);
+      return NextResponse.json({ error: 'Failed to retrieve image URL' }, { status: 500 });
+    }
+
+    // Ensure URL is absolute (Supabase should return absolute, but let's be safe)
+    let imageUrl = publicUrlData.publicUrl;
+    if (imageUrl.startsWith('/')) {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (supabaseUrl) {
+        imageUrl = `${supabaseUrl.replace(/\/$/, '')}/storage/v1/object/public/product-images/${fileName}`;
+      }
+    }
+
+    console.log('Upload successful. Image URL:', imageUrl);
+
     return NextResponse.json({
       success: true,
-      imageUrl: publicUrlData.publicUrl,
+      imageUrl: imageUrl,
     });
   } catch (error) {
     console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    return NextResponse.json({
+      error: 'Upload failed',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }

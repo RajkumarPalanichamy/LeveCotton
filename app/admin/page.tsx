@@ -120,20 +120,28 @@ export default function AdminPanel() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('/api/upload', {
+      // Using /api/upload/ with trailing slash to match next.config.js trailingSlash: true
+      // This avoids a 308 redirect that can drop the request body.
+      const response = await fetch('/api/upload/', {
         method: 'POST',
         body: formData,
       });
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Server responded with ${response.status}`);
+      }
+
       const result = await response.json();
-      if (result.success) {
+      if (result.success && result.imageUrl) {
         setEditForm(prev => ({ ...prev, image: result.imageUrl }));
         alert('✅ Image uploaded successfully!');
       } else {
-        alert('❌ Upload failed: ' + result.error);
+        alert('❌ Upload failed: ' + (result.error || 'Unknown error'));
       }
     } catch (error) {
-      alert('❌ Upload failed');
+      console.error('Upload catch error:', error);
+      alert('❌ Upload failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setUploading(false);
     }
