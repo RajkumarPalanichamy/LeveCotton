@@ -3,6 +3,18 @@
 -- Run this in your Supabase Dashboard → SQL Editor → New Query
 -- ================================================================
 
+-- Create exactly the schema named in PGRST_DB_SCHEMAS and in Next.js
+CREATE SCHEMA IF NOT EXISTS levecotton;
+
+-- Grant PostgREST roles access to the schema so it can build the schema cache
+GRANT USAGE ON SCHEMA levecotton TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA levecotton GRANT ALL ON TABLES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA levecotton GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA levecotton GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
+
+-- Make all following operations happen in the the `levecotton` schema
+SET search_path TO levecotton;
+
 -- 1. PRODUCTS TABLE
 create table if not exists products (
   id text primary key,
