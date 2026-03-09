@@ -386,13 +386,6 @@ export default function AdminPanel() {
                       <Edit className="w-4 h-4" />
                       <span>Edit</span>
                     </button>
-                    <button
-                      onClick={() => handleDelete(product.id, product.name)}
-                      className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-all duration-200 border border-red-100"
-                      title="Delete Product"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
                   </div>
                 </div>
               </div>

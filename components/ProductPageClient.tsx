@@ -165,10 +165,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
             <div className="bg-white rounded-2xl p-6 shadow-xl">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Product Information</h3>
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-600">Product ID:</span>
-                  <span className="font-medium text-gray-900">{product.id}</span>
-                </div>
+
                 <div className="flex justify-between items-center py-2 border-b border-gray-100">
                   <span className="text-gray-600">Category:</span>
                   <span className="font-medium text-gray-900 capitalize">{product.category?.replace('-', ' ')}</span>
