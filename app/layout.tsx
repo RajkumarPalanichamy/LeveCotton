@@ -94,6 +94,14 @@ const jsonLd = {
   name: 'Leve Cottons',
   url: 'https://levecottons.com',
   logo: 'https://levecottons.com/logo.png',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '1/728, Rayan Kovil Colony, Kasi Kounden Pudur',
+    addressLocality: 'Velayudhampalayam Avinashi',
+    addressRegion: 'Tamil Nadu',
+    postalCode: '641654',
+    addressCountry: 'IN',
+  },
   contactPoint: {
     '@type': 'ContactPoint',
     telephone: '+91-93458-68005',
