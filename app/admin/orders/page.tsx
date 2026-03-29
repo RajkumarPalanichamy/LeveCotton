@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
 import { LogOut, Package, Filter, Search, RefreshCw, Eye, CheckCircle, XCircle, Clock, Truck, Mail, FileText, Printer } from 'lucide-react';
+import { normalizeOrderItem, parseOrderItems, totalUnitsInOrder } from '@/lib/orderItems';
 
 interface Order {
     id: string;
@@ -227,8 +228,14 @@ export default function OrdersPage() {
             }
         };
 
-        const style = type === 'order' ? styles.order[status as keyof typeof styles.order] : styles.payment[status as keyof typeof styles.payment];
-        const icon = type === 'order' ? icons.order[status as keyof typeof icons.order] : icons.payment[status as keyof typeof icons.payment];
+        const style =
+            type === 'order'
+                ? styles.order[status as keyof typeof styles.order] ?? 'bg-gray-100 text-gray-800 border-gray-300'
+                : styles.payment[status as keyof typeof styles.payment] ?? 'bg-gray-100 text-gray-800 border-gray-300';
+        const icon =
+            type === 'order'
+                ? icons.order[status as keyof typeof icons.order] ?? <Package className="w-3 h-3" />
+                : icons.payment[status as keyof typeof icons.payment] ?? <Clock className="w-3 h-3" />;
 
         return (
             <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold border ${style}`}>
@@ -239,10 +246,22 @@ export default function OrdersPage() {
     };
 
     const filteredOrders = orders.filter(order => {
+        const q = searchQuery.toLowerCase().trim();
+        const lines = parseOrderItems(order.items).map(normalizeOrderItem);
+        const matchesProduct =
+            q.length > 0 &&
+            lines.some(
+                line =>
+                    line.name.toLowerCase().includes(q) ||
+                    (line.productCode && line.productCode.toLowerCase().includes(q))
+            );
+
         const matchesSearch =
-            order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            order.customer_phone.includes(searchQuery);
+            !q ||
+            order.id.toLowerCase().includes(q) ||
+            order.customer_name.toLowerCase().includes(q) ||
+            order.customer_phone.includes(searchQuery.trim()) ||
+            matchesProduct;
 
         return matchesSearch;
     });
@@ -395,6 +414,7 @@ export default function OrdersPage() {
                                     <tr>
                                         <th className="px-4 py-4 text-left text-sm font-bold">Order ID</th>
                                         <th className="px-4 py-4 text-left text-sm font-bold">Customer</th>
+                                        <th className="px-4 py-4 text-left text-sm font-bold min-w-[200px]">Products</th>
                                         <th className="px-4 py-4 text-left text-sm font-bold">Phone</th>
                                         <th className="px-4 py-4 text-left text-sm font-bold">Amount</th>
                                         <th className="px-4 py-4 text-left text-sm font-bold">Type</th>
@@ -417,6 +437,47 @@ export default function OrdersPage() {
                                                         <p className="text-xs text-gray-500">{order.customer_email}</p>
                                                     )}
                                                 </div>
+                                            </td>
+                                            <td className="px-4 py-4 max-w-[240px]">
+                                                {(() => {
+                                                    const lines = parseOrderItems(order.items).map(normalizeOrderItem);
+                                                    if (lines.length === 0) {
+                                                        return <span className="text-sm text-amber-600">No line items</span>;
+                                                    }
+                                                    return (
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="flex shrink-0 -space-x-2">
+                                                                {lines.slice(0, 3).map((line, i) =>
+                                                                    line.image ? (
+                                                                        // eslint-disable-next-line @next/next/no-img-element
+                                                                        <img
+                                                                            key={i}
+                                                                            src={line.image}
+                                                                            alt=""
+                                                                            className="w-9 h-9 rounded-md object-cover border-2 border-white ring-1 ring-gray-200"
+                                                                        />
+                                                                    ) : (
+                                                                        <div
+                                                                            key={i}
+                                                                            className="w-9 h-9 rounded-md bg-gray-200 border-2 border-white ring-1 ring-gray-200 flex items-center justify-center"
+                                                                        >
+                                                                            <Package className="w-3.5 h-3.5 text-gray-500" />
+                                                                        </div>
+                                                                    )
+                                                                )}
+                                                            </div>
+                                                            <div className="min-w-0 text-sm">
+                                                                <p className="font-medium text-gray-900 truncate" title={lines[0].name}>
+                                                                    {lines[0].name}
+                                                                </p>
+                                                                <p className="text-xs text-gray-500">
+                                                                    {lines.length > 1 ? `${lines.length} products · ` : ''}
+                                                                    {totalUnitsInOrder(order.items)} qty
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })()}
                                             </td>
                                             <td className="px-4 py-4 text-sm text-gray-600">{order.customer_phone}</td>
                                             <td className="px-4 py-4">
@@ -527,15 +588,51 @@ export default function OrdersPage() {
                             <div>
                                 <h3 className="font-bold text-lg mb-3 text-gray-900">Order Items</h3>
                                 <div className="space-y-2">
-                                    {selectedOrder.items.map((item: any, index: number) => (
-                                        <div key={index} className="bg-gray-50 p-4 rounded-lg flex justify-between items-center">
-                                            <div>
-                                                <p className="font-medium">{item.name}</p>
-                                                <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                                            </div>
-                                            <p className="font-bold">₹{item.price * item.quantity}</p>
-                                        </div>
-                                    ))}
+                                    {parseOrderItems(selectedOrder.items).length === 0 ? (
+                                        <p className="text-sm text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-4 py-3">
+                                            No line items are stored for this order.
+                                        </p>
+                                    ) : (
+                                        parseOrderItems(selectedOrder.items).map((raw, index) => {
+                                            const line = normalizeOrderItem(raw);
+                                            return (
+                                                <div
+                                                    key={index}
+                                                    className="bg-gray-50 p-4 rounded-lg flex gap-4 items-start justify-between"
+                                                >
+                                                    <div className="flex gap-3 min-w-0 flex-1">
+                                                        {line.image ? (
+                                                            // eslint-disable-next-line @next/next/no-img-element
+                                                            <img
+                                                                src={line.image}
+                                                                alt=""
+                                                                className="w-16 h-16 rounded-lg object-cover shrink-0 border border-gray-200"
+                                                            />
+                                                        ) : (
+                                                            <div className="w-16 h-16 rounded-lg bg-gray-200 shrink-0 flex items-center justify-center border border-gray-200">
+                                                                <Package className="w-7 h-7 text-gray-500" />
+                                                            </div>
+                                                        )}
+                                                        <div className="min-w-0">
+                                                            <p className="font-medium text-gray-900">{line.name}</p>
+                                                            {line.productCode && (
+                                                                <p className="text-xs text-gray-500 font-mono mt-0.5">{line.productCode}</p>
+                                                            )}
+                                                            {line.variantLabel && (
+                                                                <p className="text-sm text-gray-600 mt-1">{line.variantLabel}</p>
+                                                            )}
+                                                            <p className="text-sm text-gray-600 mt-1">
+                                                                Qty {line.quantity} × ₹{line.unitPrice.toLocaleString('en-IN')}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <p className="font-bold text-gray-900 shrink-0">
+                                                        ₹{line.lineTotal.toLocaleString('en-IN')}
+                                                    </p>
+                                                </div>
+                                            );
+                                        })
+                                    )}
                                 </div>
                                 <div className="mt-4 p-4 bg-purple-50 rounded-lg">
                                     <div className="flex justify-between items-center">
@@ -647,13 +744,16 @@ export default function OrdersPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {selectedOrder.items.map((item: any, idx: number) => (
-                                        <tr key={idx} className="border-b border-gray-200 border-dotted">
-                                            <td className="py-1 leading-tight">{item.name}</td>
-                                            <td className="py-1 text-center font-bold">x{item.quantity}</td>
-                                            <td className="py-1 text-right">₹{item.price * item.quantity}</td>
-                                        </tr>
-                                    ))}
+                                    {parseOrderItems(selectedOrder.items).map((raw, idx) => {
+                                        const line = normalizeOrderItem(raw);
+                                        return (
+                                            <tr key={idx} className="border-b border-gray-200 border-dotted">
+                                                <td className="py-1 leading-tight">{line.name}</td>
+                                                <td className="py-1 text-center font-bold">x{line.quantity}</td>
+                                                <td className="py-1 text-right">₹{line.lineTotal}</td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>

@@ -16,6 +16,8 @@ interface RazorpayCheckoutProps {
         productName: string;
         price: number;
         quantity: number;
+        imageUrl?: string;
+        variantId?: string;
     }[];
     sessionId?: string;
     onSuccess: (orderId: string) => void;
@@ -132,6 +134,8 @@ export function RazorpayCheckout({
                                         product_name: item.productName,
                                         price: item.price,
                                         quantity: item.quantity,
+                                        ...(item.imageUrl && { image_url: item.imageUrl }),
+                                        ...(item.variantId && { variant_id: item.variantId }),
                                     })),
                                     totalAmount: amount,
                                     sessionId,

@@ -163,6 +163,7 @@ export async function POST(request: NextRequest) {
           product_name: product.name,
           price: product.price,
           quantity: quantity,
+          image_url: product.image_url,
         }],
         total_amount: totalAmount,
         order_type: 'whatsapp',

@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { normalizeOrderItem, parseOrderItems } from '@/lib/orderItems';
 
 // Create reusable transporter
 const transporter = nodemailer.createTransport({
@@ -35,14 +36,19 @@ export const sendOrderConfirmationEmail = async (orderData: {
 }) => {
   const { orderId, customerName, customerEmail, items, totalAmount, shippingAddress, orderType } = orderData;
 
-  const itemsHtml = items.map(item => `
+  const itemsHtml = parseOrderItems(items)
+    .map((raw) => {
+      const line = normalizeOrderItem(raw);
+      return `
     <tr>
-      <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${item.price}</td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${item.price * item.quantity}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee;">${line.name}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${line.quantity}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${line.unitPrice}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${line.lineTotal}</td>
     </tr>
-  `).join('');
+  `;
+    })
+    .join('');
 
   const mailOptions = {
     from: `"LeveCotton" <${process.env.SMTP_USER}>`,
@@ -229,15 +235,20 @@ export const sendInvoiceEmail = async (orderData: {
 }) => {
   const { orderId, customerName, customerEmail, customerPhone, items, totalAmount, shippingAddress, orderDate, paymentMethod } = orderData;
 
-  const itemsHtml = items.map((item, index) => `
+  const itemsHtml = parseOrderItems(items)
+    .map((raw, index) => {
+      const line = normalizeOrderItem(raw);
+      return `
     <tr>
       <td style="padding: 10px; border-bottom: 1px solid #eee;">${index + 1}</td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name}</td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${item.quantity}</td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${item.price}</td>
-      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${item.price * item.quantity}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee;">${line.name}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${line.quantity}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${line.unitPrice}</td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₹${line.lineTotal}</td>
     </tr>
-  `).join('');
+  `;
+    })
+    .join('');
 
   const subtotal = totalAmount;
   const tax = 0; // Add tax calculation if needed

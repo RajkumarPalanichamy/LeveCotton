@@ -265,6 +265,8 @@ export default function Cart() {
                             productName: item.product?.name || '',
                             price: item.product?.price || 0,
                             quantity: item.quantity,
+                            imageUrl: item.product?.image || item.product?.image_url,
+                            variantId: item.variantId,
                           }))}
                         onSuccess={handlePaymentSuccess}
                         onError={handlePaymentError}
