@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { hydrateOrdersProductImages } from '@/lib/ordersHydrate';
 
 // GET orders (for admin dashboard)
 export async function GET(request: NextRequest) {
@@ -27,8 +28,11 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
         }
 
+        const list = orders || [];
+        const withImages = await hydrateOrdersProductImages(list);
+
         return NextResponse.json({
-            orders: orders || [],
+            orders: withImages,
             total: count || 0,
             page,
             totalPages: Math.ceil((count || 0) / limit),

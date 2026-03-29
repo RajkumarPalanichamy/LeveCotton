@@ -42,10 +42,11 @@ export function normalizeOrderItem(raw: Record<string, unknown>): NormalizedOrde
   const quantity = Math.max(0, Number(r.quantity) || 0);
   const unitPrice = Number(r.price) || 0;
 
+  const pickUrl = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : '');
   const image =
-    (typeof r.image === 'string' && r.image) ||
-    (typeof r.image_url === 'string' && r.image_url) ||
-    (typeof r.imageUrl === 'string' && r.imageUrl) ||
+    pickUrl(r.image) ||
+    pickUrl(r.image_url) ||
+    pickUrl(r.imageUrl) ||
     null;
 
   const productCode =

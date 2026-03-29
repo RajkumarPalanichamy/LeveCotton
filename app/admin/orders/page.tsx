@@ -283,6 +283,8 @@ export default function OrdersPage() {
         return null;
     }
 
+    const selectedLineItems = selectedOrder ? parseOrderItems(selectedOrder.items) : [];
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50">
             <Navbar />
@@ -516,7 +518,7 @@ export default function OrdersPage() {
             {/* Order Detail Modal */}
             {selectedOrder && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                    <div className="bg-white rounded-2xl shadow-2xl max-w-2xl lg:max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                         <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-white">
                             <div className="flex items-center justify-between">
                                 <div>
@@ -584,60 +586,96 @@ export default function OrdersPage() {
                                 </div>
                             </div>
 
-                            {/* Order Items */}
+                            {/* Ordered products — large detail cards */}
                             <div>
-                                <h3 className="font-bold text-lg mb-3 text-gray-900">Order Items</h3>
-                                <div className="space-y-2">
-                                    {parseOrderItems(selectedOrder.items).length === 0 ? (
-                                        <p className="text-sm text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-4 py-3">
+                                <h3 className="font-bold text-xl text-gray-900 mb-1">Ordered products</h3>
+                                <p className="text-sm text-gray-500 mb-5">
+                                    {selectedLineItems.length}{' '}
+                                    {selectedLineItems.length === 1 ? 'item' : 'items'} in this order
+                                </p>
+                                <div className="space-y-6">
+                                    {selectedLineItems.length === 0 ? (
+                                        <p className="text-sm text-amber-700 bg-amber-50 border border-amber-100 rounded-2xl px-5 py-4">
                                             No line items are stored for this order.
                                         </p>
                                     ) : (
-                                        parseOrderItems(selectedOrder.items).map((raw, index) => {
+                                        selectedLineItems.map((raw, index) => {
                                             const line = normalizeOrderItem(raw);
                                             return (
                                                 <div
                                                     key={index}
-                                                    className="bg-gray-50 p-4 rounded-lg flex gap-4 items-start justify-between"
+                                                    className="rounded-2xl border border-gray-200/80 bg-gradient-to-br from-white to-gray-50/80 shadow-md shadow-gray-200/50 overflow-hidden ring-1 ring-black/[0.03]"
                                                 >
-                                                    <div className="flex gap-3 min-w-0 flex-1">
-                                                        {line.image ? (
-                                                            // eslint-disable-next-line @next/next/no-img-element
-                                                            <img
-                                                                src={line.image}
-                                                                alt=""
-                                                                className="w-16 h-16 rounded-lg object-cover shrink-0 border border-gray-200"
-                                                            />
-                                                        ) : (
-                                                            <div className="w-16 h-16 rounded-lg bg-gray-200 shrink-0 flex items-center justify-center border border-gray-200">
-                                                                <Package className="w-7 h-7 text-gray-500" />
+                                                    <div className="flex flex-col md:flex-row md:min-h-[260px]">
+                                                        <div className="relative md:w-[min(42%,320px)] shrink-0 bg-gradient-to-b from-gray-100 to-gray-200/90">
+                                                            {line.image ? (
+                                                                // eslint-disable-next-line @next/next/no-img-element
+                                                                <img
+                                                                    src={line.image}
+                                                                    alt=""
+                                                                    className="w-full h-56 md:h-full md:min-h-[260px] object-cover"
+                                                                />
+                                                            ) : (
+                                                                <div className="w-full h-56 md:min-h-[260px] flex flex-col items-center justify-center gap-2 text-gray-400">
+                                                                    <Package className="w-16 h-16 md:w-20 md:h-20 opacity-80" />
+                                                                    <span className="text-xs font-medium uppercase tracking-wide">No image</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex-1 p-6 md:p-8 flex flex-col justify-between min-w-0">
+                                                            <div>
+                                                                <p className="text-xs font-semibold uppercase tracking-wider text-purple-600 mb-2">
+                                                                    Product {index + 1}
+                                                                </p>
+                                                                <h4 className="text-xl md:text-2xl font-bold text-gray-900 leading-snug">
+                                                                    {line.name}
+                                                                </h4>
+                                                                {line.productCode && (
+                                                                    <p className="mt-2 text-sm font-mono text-gray-500 bg-gray-100/80 inline-block px-2.5 py-1 rounded-md">
+                                                                        {line.productCode}
+                                                                    </p>
+                                                                )}
+                                                                {line.variantLabel && (
+                                                                    <p className="mt-3 text-base text-gray-700 font-medium">{line.variantLabel}</p>
+                                                                )}
                                                             </div>
-                                                        )}
-                                                        <div className="min-w-0">
-                                                            <p className="font-medium text-gray-900">{line.name}</p>
-                                                            {line.productCode && (
-                                                                <p className="text-xs text-gray-500 font-mono mt-0.5">{line.productCode}</p>
-                                                            )}
-                                                            {line.variantLabel && (
-                                                                <p className="text-sm text-gray-600 mt-1">{line.variantLabel}</p>
-                                                            )}
-                                                            <p className="text-sm text-gray-600 mt-1">
-                                                                Qty {line.quantity} × ₹{line.unitPrice.toLocaleString('en-IN')}
-                                                            </p>
+                                                            <div className="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+                                                                <div className="grid grid-cols-2 gap-x-10 gap-y-4 text-sm">
+                                                                    <div>
+                                                                        <p className="text-gray-500 mb-1">Quantity</p>
+                                                                        <p className="text-2xl font-bold text-gray-900 tabular-nums">
+                                                                            {line.quantity}
+                                                                        </p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-gray-500 mb-1">Unit price</p>
+                                                                        <p className="text-lg font-semibold text-gray-800 tabular-nums">
+                                                                            ₹{line.unitPrice.toLocaleString('en-IN')}
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="sm:text-right">
+                                                                    <p className="text-xs font-medium uppercase tracking-wide text-gray-500 mb-1">
+                                                                        Line total
+                                                                    </p>
+                                                                    <p className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 tabular-nums">
+                                                                        ₹{line.lineTotal.toLocaleString('en-IN')}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <p className="font-bold text-gray-900 shrink-0">
-                                                        ₹{line.lineTotal.toLocaleString('en-IN')}
-                                                    </p>
                                                 </div>
                                             );
                                         })
                                     )}
                                 </div>
-                                <div className="mt-4 p-4 bg-purple-50 rounded-lg">
-                                    <div className="flex justify-between items-center">
-                                        <span className="font-bold text-lg">Total Amount:</span>
-                                        <span className="font-bold text-2xl text-purple-600">₹{selectedOrder.total_amount.toLocaleString()}</span>
+                                <div className="mt-6 p-6 rounded-2xl bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-100/80">
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                        <span className="font-bold text-lg text-gray-900">Order total</span>
+                                        <span className="font-bold text-3xl text-purple-700 tabular-nums">
+                                            ₹{selectedOrder.total_amount.toLocaleString('en-IN')}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
