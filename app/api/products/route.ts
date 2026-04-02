@@ -11,9 +11,10 @@ export async function GET(request: NextRequest) {
 
     let query = supabaseAdmin.from('products').select('*', { count: 'exact' });
 
-    // Filter by category
+    // Filter by category token (supports comma-separated multi-category; avoids `sale` matching `wholesale`)
     if (filter) {
-      query = query.eq('category', filter);
+      const escaped = filter.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query = query.regexIMatch('category', `(^|,)${escaped}(,|$)`);
     }
 
     // Filter by collection
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest) {
       collection: p.collection,
       color: p.color,
       fabric: p.fabric,
-      inStock: p.in_stock,
+      inStock: p.in_stock !== false,
     }));
 
     // Get category counts
@@ -58,9 +59,12 @@ export async function GET(request: NextRequest) {
       'sale': 0,
     };
     (allProducts || []).forEach(p => {
-      if (p.category in categories) {
-        categories[p.category as keyof typeof categories]++;
-      }
+      const raw = String(p.category || '');
+      raw.split(',').map(s => s.trim()).filter(Boolean).forEach(slug => {
+        if (slug in categories) {
+          categories[slug as keyof typeof categories]++;
+        }
+      });
     });
 
     return NextResponse.json({

@@ -1,11 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useProducts } from '@/hooks/useProducts';
 import { LazyImage } from '@/components/LazyImage';
 import { LazyLoad } from '@/components/LazyLoad';
-import { Edit, Save, X, Upload, Package, Search, RefreshCw } from 'lucide-react';
+import { Edit, Save, X, Upload, Package, Search, RefreshCw, ChevronDown } from 'lucide-react';
+import {
+  SHOP_CATEGORY_OPTIONS,
+  formatCategoryLabels,
+  mergeCategoriesForSave,
+  getSelectedShopSlugs,
+} from '@/lib/productCategories';
 
 export default function AdminPanel() {
   const router = useRouter();
@@ -31,6 +37,27 @@ export default function AdminPanel() {
   });
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+  const categoryMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!categoryMenuOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (categoryMenuRef.current && !categoryMenuRef.current.contains(e.target as Node)) {
+        setCategoryMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [categoryMenuOpen]);
+
+  const toggleShopCategory = (slug: string) => {
+    setEditForm((prev) => {
+      const selected = getSelectedShopSlugs(prev.category);
+      const next = selected.includes(slug) ? selected.filter((s) => s !== slug) : [...selected, slug];
+      return { ...prev, category: mergeCategoriesForSave(next, prev.category) };
+    });
+  };
 
   // Authentication check
   useEffect(() => {
@@ -57,6 +84,7 @@ export default function AdminPanel() {
   }, [router]);
 
   const openEditModal = (product: any) => {
+    setCategoryMenuOpen(false);
     setSelectedProduct(product);
     setEditForm({
       name: product.name,
@@ -72,6 +100,7 @@ export default function AdminPanel() {
   };
 
   const openAddModal = () => {
+    setCategoryMenuOpen(false);
     if (isLimitReached) {
       alert('⚠️ Product limit reached (75 products). Please contact the administrator for a plan upgrade.');
       return;
@@ -92,6 +121,7 @@ export default function AdminPanel() {
   };
 
   const closeModal = () => {
+    setCategoryMenuOpen(false);
     setIsAdding(false);
     setSelectedProduct(null);
     setEditForm({
@@ -185,7 +215,7 @@ export default function AdminPanel() {
   const filteredProducts = products.filter(product =>
     product.productCode?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchQuery.toLowerCase())
+    (product.category ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Show loading while checking authentication
@@ -293,7 +323,14 @@ export default function AdminPanel() {
             <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
               <p className="text-sm text-green-600 font-semibold">Categories</p>
               <p className="text-2xl font-bold text-green-900">
-                {new Set(products.map(p => p.category)).size}
+                {new Set(
+                  products.flatMap((p) =>
+                    String(p.category || '')
+                      .split(',')
+                      .map((s) => s.trim())
+                      .filter(Boolean)
+                  )
+                ).size}
               </p>
             </div>
             <div className="bg-gradient-to-br from-pink-50 to-pink-100 p-4 rounded-lg border border-pink-200">
@@ -352,7 +389,9 @@ export default function AdminPanel() {
                 <div className="p-4 flex flex-col flex-1">
                   <div className="flex-1">
                     <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-1">{product.name}</h3>
-                    <p className="text-sm text-gray-500 mb-2 font-medium">{product.category}</p>
+                    <p className="text-sm text-gray-500 mb-2 font-medium">
+                      {formatCategoryLabels(product.category) || product.category}
+                    </p>
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-2xl font-black text-purple-600">₹{product.price.toLocaleString()}</span>
                       <div className="flex flex-wrap items-center justify-end gap-1">
@@ -480,15 +519,36 @@ export default function AdminPanel() {
                     placeholder="0"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold mb-2 text-gray-900">Category</label>
-                  <input
-                    type="text"
-                    value={editForm.category}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, category: e.target.value }))}
-                    className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
-                    placeholder="e.g., Shirts"
-                  />
+                <div className="relative" ref={categoryMenuRef}>
+                  <label className="block text-sm font-semibold mb-2 text-gray-900">Categories</label>
+                  <button
+                    type="button"
+                    onClick={() => setCategoryMenuOpen((o) => !o)}
+                    className="flex w-full items-center justify-between gap-2 rounded-lg border-2 border-gray-200 bg-white p-3 text-left text-sm focus:border-purple-500 focus:outline-none"
+                  >
+                    <span className={`truncate ${formatCategoryLabels(editForm.category) ? 'text-gray-900' : 'text-gray-400'}`}>
+                      {formatCategoryLabels(editForm.category) || 'Select categories…'}
+                    </span>
+                    <ChevronDown className={`h-5 w-5 shrink-0 text-gray-500 transition-transform ${categoryMenuOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                  {categoryMenuOpen && (
+                    <div className="absolute left-0 right-0 z-30 mt-1 rounded-lg border-2 border-gray-200 bg-white py-2 shadow-xl">
+                      {SHOP_CATEGORY_OPTIONS.map((opt) => (
+                        <label
+                          key={opt.slug}
+                          className="flex cursor-pointer items-center gap-3 px-4 py-2.5 text-sm hover:bg-purple-50"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={getSelectedShopSlugs(editForm.category).includes(opt.slug)}
+                            onChange={() => toggleShopCategory(opt.slug)}
+                            className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                          />
+                          <span className="font-medium tracking-wide text-gray-800">{opt.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
