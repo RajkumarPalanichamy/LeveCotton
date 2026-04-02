@@ -5,7 +5,6 @@ import { CreditCard, ShoppingBag, Check } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { LazyImage } from './LazyImage';
 import { RazorpayCheckout } from './RazorpayCheckout';
-import { isProductInStock } from '@/lib/productStock';
 
 interface Product {
   id: string;
@@ -28,7 +27,6 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const inStock = isProductInStock(product);
   const { addToCart } = useCart();
   const [showBuyNow, setShowBuyNow] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
@@ -41,7 +39,6 @@ export function ProductCard({ product }: ProductCardProps) {
   });
 
   const handleAddToCart = () => {
-    if (!inStock) return;
     addToCart({
       productId: product.id,
       variantId: 'default',
@@ -65,9 +62,9 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.discount}% OFF
           </div>
         )}
-        {!inStock && (
-          <div className="absolute inset-0 bg-black/55 flex items-center justify-center z-10">
-            <span className="text-white font-bold text-lg tracking-wide">Sold out</span>
+        {!product.inStock && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
+            <span className="text-white font-semibold text-lg">Out of Stock</span>
           </div>
         )}
       </div>
@@ -114,16 +111,16 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="space-y-2">
           <button
             onClick={() => setShowBuyNow(true)}
-            disabled={!inStock}
+            disabled={!product.inStock}
             className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:bg-gray-400 text-white py-3 px-4 rounded-xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
           >
             <CreditCard className="w-4 h-4" />
-            {inStock ? 'Buy Now' : 'Sold out'}
+            {product.inStock ? 'Buy Now' : 'Out of Stock'}
           </button>
 
           <button
             onClick={handleAddToCart}
-            disabled={!inStock}
+            disabled={!product.inStock}
             className={`w-full py-3 px-4 rounded-xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 border-2 ${addedToCart
               ? 'bg-green-50 border-green-500 text-green-600'
               : 'bg-white border-purple-100 text-purple-600 hover:bg-purple-50 hover:border-purple-200'

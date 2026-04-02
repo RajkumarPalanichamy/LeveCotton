@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Providers } from "@/components/providers";
 import { Footer } from "@/components/Footer";
 
-import { ConditionalStoreChrome } from "@/components/ConditionalStoreChrome";
+import { InstagramButton } from "@/components/InstagramButton";
 import "./globals.css";
 import type { Metadata } from 'next';
 
@@ -141,7 +141,8 @@ export default function RootLayout({
           <Toaster />
           <Sonner />
           {children}
-          <ConditionalStoreChrome />
+          <Footer />
+          <InstagramButton />
 
         </Providers>
       </body>

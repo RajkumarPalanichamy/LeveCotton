@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useProducts } from '@/hooks/useProducts';
+import { Navbar } from '@/components/Navbar';
 import { LazyImage } from '@/components/LazyImage';
 import { LazyLoad } from '@/components/LazyLoad';
-import { Edit, Save, X, Upload, Package, Search, RefreshCw, Eye, Trash2, Plus } from 'lucide-react';
-import { isProductInStock } from '@/lib/productStock';
+import { Edit, Save, X, Upload, LogOut, Package, Search, RefreshCw, Eye, Trash2, Plus } from 'lucide-react';
 
 export default function AdminPanel() {
   const router = useRouter();
@@ -14,6 +14,7 @@ export default function AdminPanel() {
   const [isAdding, setIsAdding] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [adminUser, setAdminUser] = useState<any>(null);
   const PRODUCT_LIMIT = 75;
   const isLimitReached = products.length >= PRODUCT_LIMIT;
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,8 +27,7 @@ export default function AdminPanel() {
     color: '',
     fabric: '',
     image: '',
-    productCode: '',
-    inStock: true,
+    productCode: ''
   });
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -44,7 +44,7 @@ export default function AdminPanel() {
       }
 
       try {
-        JSON.parse(user);
+        setAdminUser(JSON.parse(user));
         setIsAuthenticated(true);
       } catch (error) {
         router.push('/login');
@@ -56,6 +56,13 @@ export default function AdminPanel() {
     checkAuth();
   }, [router]);
 
+  const handleLogout = () => {
+    localStorage.removeItem('adminUser');
+    localStorage.removeItem('isAdmin');
+    localStorage.removeItem('adminLoginTime');
+    router.push('/login');
+  };
+
   const openEditModal = (product: any) => {
     setSelectedProduct(product);
     setEditForm({
@@ -66,8 +73,7 @@ export default function AdminPanel() {
       color: product.color || '',
       fabric: product.fabric || '',
       image: product.image || '',
-      productCode: product.productCode || `LC-${product.id.slice(-3)}`,
-      inStock: isProductInStock(product),
+      productCode: product.productCode || `LC-${product.id.slice(-3)}`
     });
   };
 
@@ -86,8 +92,7 @@ export default function AdminPanel() {
       color: '',
       fabric: '',
       image: '',
-      productCode: `LC-${Math.floor(1000 + Math.random() * 9000)}`,
-      inStock: true,
+      productCode: `LC-${Math.floor(1000 + Math.random() * 9000)}`
     });
   };
 
@@ -102,8 +107,7 @@ export default function AdminPanel() {
       color: '',
       fabric: '',
       image: '',
-      productCode: '',
-      inStock: true,
+      productCode: ''
     });
   };
 
@@ -153,6 +157,7 @@ export default function AdminPanel() {
         success = await createProduct({
           ...editForm,
           id: editForm.productCode.toLowerCase().replace(/\s+/g, '-'),
+          inStock: true
         } as any);
       } else {
         success = await updateProduct(selectedProduct.id, editForm);
@@ -207,18 +212,53 @@ export default function AdminPanel() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Panel</h1>
-          <p className="text-gray-600">Loading products...</p>
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50">
+        <Navbar />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Panel</h1>
+            <p className="text-gray-600">Loading products...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50">
+      <Navbar />
+
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        {/* Admin Info Bar */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 p-4 mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-lg">{adminUser?.name?.charAt(0) || 'A'}</span>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Logged in as</p>
+              <p className="font-semibold text-gray-900">{adminUser?.name || 'Admin'}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => router.push('/admin/orders')}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+            >
+              <Package className="w-4 h-4" />
+              <span className="hidden sm:inline">Orders</span>
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
+          </div>
+        </div>
+
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full mb-4 shadow-2xl">
@@ -316,11 +356,6 @@ export default function AdminPanel() {
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />
-                  {!isProductInStock(product) && (
-                    <div className="absolute inset-0 bg-black/55 flex items-center justify-center z-[5]">
-                      <span className="text-white font-bold text-sm uppercase tracking-wide">Sold out</span>
-                    </div>
-                  )}
                   <div className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 rounded-full text-xs font-mono font-bold z-10 shadow-lg">
                     {product.productCode || `LC-${product.id.slice(-3)}`}
                   </div>
@@ -364,6 +399,7 @@ export default function AdminPanel() {
             <p className="text-gray-500 text-lg">No products found</p>
           </div>
         )}
+      </div>
 
       {/* Modal */}
       {(selectedProduct || isAdding) && (
@@ -497,19 +533,6 @@ export default function AdminPanel() {
                   placeholder="Enter product description"
                 />
               </div>
-
-              <label className="flex items-start gap-3 cursor-pointer rounded-xl border-2 border-gray-200 p-4 hover:border-purple-200 transition-colors">
-                <input
-                  type="checkbox"
-                  checked={editForm.inStock}
-                  onChange={(e) => setEditForm(prev => ({ ...prev, inStock: e.target.checked }))}
-                  className="mt-1 h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                />
-                <div>
-                  <span className="block text-sm font-semibold text-gray-900">Available for purchase</span>
-                  <span className="text-xs text-gray-500">Uncheck to mark as sold out (hides add to cart / buy on the store).</span>
-                </div>
-              </label>
 
               {/* Action Buttons */}
               <div className="flex gap-3 pt-4 border-t">

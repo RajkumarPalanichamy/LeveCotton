@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       collection: p.collection,
       color: p.color,
       fabric: p.fabric,
-      inStock: p.in_stock !== false,
+      inStock: p.in_stock,
     }));
 
     // Get category counts
