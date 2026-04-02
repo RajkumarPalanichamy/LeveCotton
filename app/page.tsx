@@ -232,6 +232,29 @@ export default function Home() {
       </section>
 
       <Banner />
+       {/* Store location */}
+       <section className="py-16 bg-white" aria-labelledby="visit-us-heading">
+        <div className="container mx-auto px-4">
+          <h2
+            id="visit-us-heading"
+            className="text-3xl md:text-4xl font-serif text-center text-gray-900 mb-8"
+          >
+            Visit Us
+          </h2>
+          <div className="max-w-5xl mx-auto rounded-lg overflow-hidden shadow-sm border border-gray-100">
+            <div className="relative w-full aspect-[4/3] md:aspect-[16/9] min-h-[280px]">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5662.259211660487!2d77.2674566!3d11.1768994!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ba9030017266b85%3A0xa01f09b156f37c19!2sLEVE%20COTTONS!5e1!3m2!1sen!2sin!4v1775125210910!5m2!1sen!2sin"
+                className="absolute inset-0 w-full h-full border-0"
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Leve Cottons store location on Google Maps"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
