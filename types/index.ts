@@ -26,6 +26,9 @@ export interface CartItem {
   productId: string;
   variantId: string;
   quantity: number;
+  name?: string;
+  price?: number;
+  image?: string;
 }
 
 export interface Customer {

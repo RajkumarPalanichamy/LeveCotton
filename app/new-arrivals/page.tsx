@@ -46,6 +46,7 @@ export default function NewArrivals() {
   console.log('New Arrivals page - Products:', products.length, loading, error);
 
   const handleAddToCart = (product: any) => {
+    if (product.inStock === false) return;
     addToCart({
       productId: product.id,
       variantId: 'default',
@@ -110,7 +111,9 @@ export default function NewArrivals() {
           <div className="flex-1">
 
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {displayProducts.map((product) => (
+          {displayProducts.map((product) => {
+            const canBuy = product.inStock !== false;
+            return (
             <div key={product.id} className="group">
               <div className="relative overflow-hidden rounded-xl mb-4">
                 <Link href={`/product/${product.id}`}>
@@ -120,13 +123,26 @@ export default function NewArrivals() {
                     className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
                   />
                 </Link>
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {!canBuy && (
+                  <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-black/45">
+                    <span className="rounded-full bg-white/95 px-3 py-1 text-xs font-bold uppercase tracking-wide text-gray-900 shadow">
+                      Sold out
+                    </span>
+                  </div>
+                )}
+                <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <button
+                    type="button"
                     onClick={() => handleAddToCart(product)}
-                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center gap-2 shadow-lg hover:from-blue-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-200 text-sm font-medium"
+                    disabled={!canBuy}
+                    className={`px-4 py-2 rounded-full flex items-center gap-2 shadow-lg transform transition-all duration-200 text-sm font-medium ${
+                      canBuy
+                        ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600 hover:scale-105'
+                        : 'cursor-not-allowed bg-gray-400 text-white'
+                    }`}
                   >
                     <ShoppingBag className="w-4 h-4" />
-                    Add to Cart
+                    {canBuy ? 'Add to Cart' : 'Sold out'}
                   </button>
                 </div>
               </div>
@@ -137,7 +153,8 @@ export default function NewArrivals() {
                 <p className="text-lg font-serif text-gray-900">₹{product.price.toLocaleString('en-IN')}</p>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
           </div>
         </div>

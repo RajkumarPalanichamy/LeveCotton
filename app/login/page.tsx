@@ -33,7 +33,7 @@ export default function LoginPage() {
                 localStorage.setItem('adminLoginTime', new Date().toISOString());
 
                 // Redirect to admin dashboard
-                router.push('/admin');
+                router.push('/admin/products');
             } else {
                 setError(data.error || 'Invalid credentials. Please try again.');
             }

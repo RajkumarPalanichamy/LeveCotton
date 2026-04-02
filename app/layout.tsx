@@ -1,9 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Providers } from "@/components/providers";
-import { Footer } from "@/components/Footer";
-
-import { InstagramButton } from "@/components/InstagramButton";
+import { SiteChrome } from "@/components/SiteChrome";
 import "./globals.css";
 import type { Metadata } from 'next';
 
@@ -141,9 +139,7 @@ export default function RootLayout({
           <Toaster />
           <Sonner />
           {children}
-          <Footer />
-          <InstagramButton />
-
+          <SiteChrome />
         </Providers>
       </body>
     </html>

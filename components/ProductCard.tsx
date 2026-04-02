@@ -64,7 +64,7 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
         {!product.inStock && (
           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
-            <span className="text-white font-semibold text-lg">Out of Stock</span>
+            <span className="text-white font-semibold text-lg">Sold out</span>
           </div>
         )}
       </div>
@@ -115,7 +115,7 @@ export function ProductCard({ product }: ProductCardProps) {
             className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:bg-gray-400 text-white py-3 px-4 rounded-xl text-sm font-bold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
           >
             <CreditCard className="w-4 h-4" />
-            {product.inStock ? 'Buy Now' : 'Out of Stock'}
+            {product.inStock ? 'Buy Now' : 'Sold out'}
           </button>
 
           <button
@@ -134,7 +134,7 @@ export function ProductCard({ product }: ProductCardProps) {
             ) : (
               <>
                 <ShoppingBag className="w-4 h-4" />
-                Add to Cart
+                {product.inStock ? 'Add to Cart' : 'Sold out'}
               </>
             )}
           </button>

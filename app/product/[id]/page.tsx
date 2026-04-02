@@ -107,7 +107,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
       url: `https://levecottons.com/product/${product.id}`,
       priceCurrency: 'INR',
       price: product.price,
-      availability: 'https://schema.org/InStock',
+      availability: product.inStock
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
     },
   };
 

@@ -101,9 +101,9 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                 <div className="flex items-center gap-2">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${product.inStock
                     ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
+                    : 'bg-amber-100 text-amber-900'
                     }`}>
-                    {product.inStock ? '✓ In Stock' : '✗ Out of Stock'}
+                    {product.inStock ? '✓ In stock' : 'Sold out'}
                   </span>
                   <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium capitalize">
                     {product.category?.replace('-', ' ')}
@@ -172,9 +172,9 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                 </div>
                 <div className="flex justify-between items-center py-2">
                   <span className="text-gray-600">Availability:</span>
-                  <span className={`font-medium ${product.inStock ? 'text-green-600' : 'text-red-600'
+                  <span className={`font-medium ${product.inStock ? 'text-green-600' : 'text-amber-800'
                     }`}>
-                    {product.inStock ? 'In Stock' : 'Out of Stock'}
+                    {product.inStock ? 'In stock' : 'Sold out'}
                   </span>
                 </div>
               </div>
