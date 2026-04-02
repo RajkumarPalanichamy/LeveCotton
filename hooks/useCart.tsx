@@ -63,6 +63,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const addToCart = useCallback(async (item: CartItem) => {
     console.log('Adding to cart:', item);
 
+    const previousJson = localStorage.getItem('cart');
+
     // Optimistic update
     setCart(prev => {
       const existing = prev.find(
@@ -82,9 +84,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return newCart;
     });
 
-    // Persist to server
     try {
-      await fetch('/api/cart', {
+      const res = await fetch('/api/cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -94,10 +95,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
           quantity: item.quantity,
         }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        if (previousJson) {
+          try {
+            setCart(JSON.parse(previousJson));
+            localStorage.setItem('cart', previousJson);
+          } catch {
+            await fetchCart();
+          }
+        } else {
+          await fetchCart();
+        }
+        alert(typeof data.error === 'string' ? data.error : 'Could not add this item to your cart.');
+        return;
+      }
+      await fetchCart();
     } catch (error) {
       console.error('Failed to save cart to server:', error);
+      await fetchCart();
     }
-  }, [sessionId]);
+  }, [sessionId, fetchCart]);
 
   const updateQuantity = useCallback(async (productId: string, variantId: string, quantity: number) => {
     if (quantity <= 0) {

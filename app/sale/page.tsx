@@ -7,6 +7,7 @@ import { useProducts } from '@/hooks/useProducts';
 import { Navbar } from '@/components/Navbar';
 import { ProductFilters } from '@/components/ProductFilters';
 import Link from 'next/link';
+import { isProductInStock } from '@/lib/productStock';
 
 export default function Sale() {
   const { products, loading, error } = useProducts('sale');
@@ -44,6 +45,7 @@ export default function Sale() {
   }, [filters, products]);
 
   const handleAddToCart = (product: any) => {
+    if (!isProductInStock(product)) return;
     addToCart({
       productId: product.id,
       variantId: 'default',
@@ -117,13 +119,20 @@ export default function Sale() {
                     className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
                   />
                 </Link>
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                {!isProductInStock(product) && (
+                  <div className="absolute inset-0 bg-black/55 flex items-center justify-center z-10 pointer-events-none">
+                    <span className="text-white font-bold text-sm uppercase tracking-wide">Sold out</span>
+                  </div>
+                )}
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
                   <button
+                    type="button"
+                    disabled={!isProductInStock(product)}
                     onClick={() => handleAddToCart(product)}
-                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center gap-2 shadow-lg hover:from-blue-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-200 text-sm font-medium"
+                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full flex items-center gap-2 shadow-lg hover:from-blue-600 hover:to-purple-600 transform hover:scale-105 transition-all duration-200 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
                     <ShoppingBag className="w-4 h-4" />
-                    Add to Cart
+                    {isProductInStock(product) ? 'Add to Cart' : 'Sold out'}
                   </button>
                 </div>
               </div>

@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Navbar } from '@/components/Navbar';
-import { LogOut, Package, Filter, Search, RefreshCw, Eye, CheckCircle, XCircle, Clock, Truck, Mail, FileText, Printer } from 'lucide-react';
+import { Package, Filter, Search, RefreshCw, Eye, CheckCircle, XCircle, Clock, Truck, Mail, FileText, Printer } from 'lucide-react';
 import { normalizeOrderItem, parseOrderItems, totalUnitsInOrder } from '@/lib/orderItems';
 
 interface Order {
@@ -26,7 +25,6 @@ export default function OrdersPage() {
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [checkingAuth, setCheckingAuth] = useState(true);
-    const [adminUser, setAdminUser] = useState<any>(null);
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -46,7 +44,7 @@ export default function OrdersPage() {
             }
 
             try {
-                setAdminUser(JSON.parse(user));
+                JSON.parse(user);
                 setIsAuthenticated(true);
             } catch (error) {
                 router.push('/login');
@@ -83,13 +81,6 @@ export default function OrdersPage() {
         } finally {
             setLoading(false);
         }
-    };
-
-    const handleLogout = () => {
-        localStorage.removeItem('adminUser');
-        localStorage.removeItem('isAdmin');
-        localStorage.removeItem('adminLoginTime');
-        router.push('/login');
     };
 
     const updateOrderStatus = async (orderId: string, orderStatus: string, paymentStatus?: string) => {
@@ -286,39 +277,7 @@ export default function OrdersPage() {
     const selectedLineItems = selectedOrder ? parseOrderItems(selectedOrder.items) : [];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50">
-            <Navbar />
-
-            <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
-                {/* Admin Info Bar */}
-                <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 p-4 mb-6 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
-                            <span className="text-white font-bold text-lg">{adminUser?.name?.charAt(0) || 'A'}</span>
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500">Logged in as</p>
-                            <p className="font-semibold text-gray-900">{adminUser?.name || 'Admin'}</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => router.push('/admin')}
-                            className="flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
-                        >
-                            <Package className="w-4 h-4" />
-                            <span className="hidden sm:inline">Products</span>
-                        </button>
-                        <button
-                            onClick={handleLogout}
-                            className="flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
-                        >
-                            <LogOut className="w-4 h-4" />
-                            <span className="hidden sm:inline">Logout</span>
-                        </button>
-                    </div>
-                </div>
-
+        <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
                 {/* Header */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full mb-4 shadow-2xl">
@@ -513,7 +472,6 @@ export default function OrdersPage() {
                         </div>
                     )}
                 </div>
-            </div>
 
             {/* Order Detail Modal */}
             {selectedOrder && (

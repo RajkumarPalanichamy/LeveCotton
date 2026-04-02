@@ -39,7 +39,7 @@ async function getProduct(id: string) {
     collection: p.collection,
     color: p.color,
     fabric: p.fabric,
-    inStock: p.in_stock,
+    inStock: p.in_stock !== false,
   };
 }
 

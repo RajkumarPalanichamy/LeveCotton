@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
         collection: item.products.collection,
         color: item.products.color,
         fabric: item.products.fabric,
-        inStock: item.products.in_stock,
+        inStock: item.products.in_stock !== false,
       } : null,
     }));
 
@@ -54,6 +54,19 @@ export async function POST(request: NextRequest) {
   try {
     const { sessionId, productId, variantId = 'default', quantity = 1 } = await request.json();
     const sid = sessionId || 'guest';
+
+    const { data: productRow, error: productError } = await supabaseAdmin
+      .from('products')
+      .select('in_stock')
+      .eq('id', productId)
+      .single();
+
+    if (productError || !productRow) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
+    }
+    if (productRow.in_stock === false) {
+      return NextResponse.json({ error: 'This product is sold out' }, { status: 409 });
+    }
 
     // Upsert: if item exists, increment quantity; otherwise insert
     const { data: existing } = await supabaseAdmin

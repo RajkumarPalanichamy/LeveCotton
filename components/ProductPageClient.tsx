@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { ShoppingBag, CreditCard } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { RazorpayCheckout } from '@/components/RazorpayCheckout';
+import { isProductInStock } from '@/lib/productStock';
 
 interface Product {
   id: string;
@@ -28,6 +29,7 @@ interface ProductPageClientProps {
 }
 
 export default function ProductPageClient({ product }: ProductPageClientProps) {
+  const inStock = isProductInStock(product);
   const { addToCart } = useCart();
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
@@ -41,6 +43,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
   });
 
   const handleAddToCart = () => {
+    if (!inStock) return;
     addToCart({
       productId: product.id,
       variantId: 'default',
@@ -73,6 +76,11 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                 alt={product.name}
                 className="w-full h-full object-cover rounded-xl"
               />
+              {!inStock && (
+                <div className="absolute inset-4 flex items-center justify-center rounded-xl bg-black/55 z-10">
+                  <span className="text-white font-bold text-lg uppercase tracking-wide">Sold out</span>
+                </div>
+              )}
             </div>
             {product.images && product.images.length > 1 && (
               <div className="grid grid-cols-4 gap-3">
@@ -99,11 +107,11 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${product.inStock
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${inStock
                     ? 'bg-green-100 text-green-800'
                     : 'bg-red-100 text-red-800'
                     }`}>
-                    {product.inStock ? '✓ In Stock' : '✗ Out of Stock'}
+                    {inStock ? 'In stock' : 'Sold out'}
                   </span>
                   <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium capitalize">
                     {product.category?.replace('-', ' ')}
@@ -143,16 +151,16 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
                 <button
                   onClick={() => setShowBuyNow(true)}
-                  disabled={!product.inStock}
+                  disabled={!inStock}
                   className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white py-4 px-8 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3"
                 >
                   <CreditCard className="w-6 h-6" />
-                  Buy Now
+                  {inStock ? 'Buy now' : 'Sold out'}
                 </button>
 
                 <button
                   onClick={handleAddToCart}
-                  disabled={!product.inStock}
+                  disabled={!inStock}
                   className="flex-1 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white py-4 px-8 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3"
                 >
                   <ShoppingBag className="w-5 h-5" />
@@ -172,9 +180,9 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                 </div>
                 <div className="flex justify-between items-center py-2">
                   <span className="text-gray-600">Availability:</span>
-                  <span className={`font-medium ${product.inStock ? 'text-green-600' : 'text-red-600'
+                  <span className={`font-medium ${inStock ? 'text-green-600' : 'text-red-600'
                     }`}>
-                    {product.inStock ? 'In Stock' : 'Out of Stock'}
+                    {inStock ? 'In stock' : 'Sold out'}
                   </span>
                 </div>
               </div>
