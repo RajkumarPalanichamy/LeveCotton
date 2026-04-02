@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useProducts } from '@/hooks/useProducts';
 import { LazyImage } from '@/components/LazyImage';
 import { LazyLoad } from '@/components/LazyLoad';
-import { Edit, Save, X, Upload, Package, Search, RefreshCw, ChevronDown } from 'lucide-react';
+import { Edit, Save, X, Upload, Package, Search, RefreshCw, Plus, Trash2, ChevronDown } from 'lucide-react';
 import {
   SHOP_CATEGORY_OPTIONS,
   formatCategoryLabels,
@@ -37,6 +37,8 @@ export default function AdminPanel() {
   });
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
   const categoryMenuRef = useRef<HTMLDivElement>(null);
 
@@ -201,14 +203,27 @@ export default function AdminPanel() {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (confirm(`Are you sure you want to delete "${name}"?`)) {
-      const success = await deleteProduct(id);
+  const requestDelete = (product: { id: string; name: string }) => {
+    setDeleteTarget({ id: product.id, name: product.name });
+  };
+
+  const cancelDelete = () => {
+    if (!deleting) setDeleteTarget(null);
+  };
+
+  const confirmDeleteProduct = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      const success = await deleteProduct(deleteTarget.id);
       if (success) {
+        setDeleteTarget(null);
         alert('✅ Product deleted successfully!');
       } else {
         alert('❌ Failed to delete product');
       }
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -289,9 +304,10 @@ export default function AdminPanel() {
               />
             </div>
             <div className="flex items-center gap-2">
-              {/* Add Product button hidden as per request */}
-              {/* <button
+              <button
+                type="button"
                 onClick={openAddModal}
+                disabled={isLimitReached}
                 className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-bold ${isLimitReached
                   ? 'bg-gray-400 text-white cursor-not-allowed'
                   : 'bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white'
@@ -299,7 +315,7 @@ export default function AdminPanel() {
               >
                 <Plus className="w-5 h-5" />
                 <span>Add Product</span>
-              </button> */}
+              </button>
               <button
                 onClick={() => window.location.reload()}
                 className="p-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors shadow-md"
@@ -413,11 +429,20 @@ export default function AdminPanel() {
                   {/* Action Buttons */}
                   <div className="flex gap-2 mt-auto">
                     <button
+                      type="button"
                       onClick={() => openEditModal(product)}
                       className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg transition-all duration-200 shadow-sm hover:shadow-md text-sm font-bold"
                     >
                       <Edit className="w-4 h-4" />
                       <span>Edit</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => requestDelete(product)}
+                      className="shrink-0 flex items-center justify-center gap-2 px-3 py-2 border-2 border-red-200 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 text-sm font-bold"
+                      title="Delete product"
+                    >
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -632,6 +657,57 @@ export default function AdminPanel() {
                   Cancel
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={cancelDelete}
+          role="presentation"
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-gray-100"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="admin-products-delete-title"
+          >
+            <h3 id="admin-products-delete-title" className="text-xl font-bold text-gray-900">
+              Delete this product?
+            </h3>
+            <p className="mt-3 text-gray-600 leading-relaxed">
+              <span className="font-semibold text-gray-900">&ldquo;{deleteTarget.name}&rdquo;</span> will be removed from your catalog permanently. This cannot be undone.
+            </p>
+            <div className="mt-6 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+              <button
+                type="button"
+                onClick={cancelDelete}
+                disabled={deleting}
+                className="px-5 py-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDeleteProduct}
+                disabled={deleting}
+                className="px-5 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {deleting ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Deleting…
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4" />
+                    Delete product
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>
