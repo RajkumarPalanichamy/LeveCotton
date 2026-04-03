@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Trash2, CreditCard, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
+import { SHIPPING_INR } from '@/app/admin/shipping';
 
 export default function Cart() {
   const { cart, updateQuantity, removeFromCart, clearCart, sessionId } = useCart();
@@ -34,10 +35,11 @@ export default function Cart() {
     return { ...item, product };
   });
 
-  const total = cartItems.reduce(
+  const subtotal = cartItems.reduce(
     (sum, item) => sum + (item.product?.price || 0) * item.quantity,
     0
   );
+  const grandTotal = subtotal + SHIPPING_INR;
 
   const handleWhatsAppCheckout = () => {
     let message = `🛍️ *NEW ORDER - LEVE COTTONS* 🛍️\n\n`;
@@ -60,7 +62,8 @@ export default function Cart() {
       }
     });
 
-    message += `💳 *Total Amount: ₹${total.toLocaleString('en-IN')}*\n\n`;
+    message += `🚚 *Shipping: ₹${SHIPPING_INR.toLocaleString('en-IN')}*\n`;
+    message += `💳 *Total Amount: ₹${grandTotal.toLocaleString('en-IN')}*\n\n`;
     message += `📅 *Order Date: ${new Date().toLocaleDateString('en-IN')}*\n`;
     message += `🕐 *Order Time: ${new Date().toLocaleTimeString('en-IN')}*\n\n`;
     message += `Please confirm this order and share delivery details.`;
@@ -191,15 +194,15 @@ export default function Cart() {
               <div className="space-y-2 mb-6">
                 <div className="flex justify-between">
                   <span>Subtotal ({cartItems.length} items)</span>
-                  <span>₹{total.toLocaleString('en-IN')}</span>
+                  <span>₹{subtotal.toLocaleString('en-IN')}</span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-500">
+                <div className="flex justify-between text-sm text-gray-600">
                   <span>Shipping</span>
-                  <span className="text-green-600">Free</span>
+                  <span>₹{SHIPPING_INR.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-lg font-serif pt-4 border-t">
                   <span>Total</span>
-                  <span className="font-bold">₹{total.toLocaleString('en-IN')}</span>
+                  <span className="font-bold">₹{grandTotal.toLocaleString('en-IN')}</span>
                 </div>
               </div>
 
@@ -254,7 +257,7 @@ export default function Cart() {
                     {/* Razorpay Pay Online */}
                     {customerInfo.name && customerInfo.phone && customerInfo.address ? (
                       <RazorpayCheckout
-                        amount={total}
+                        amount={grandTotal}
                         customerInfo={customerInfo}
                         sessionId={sessionId}
                         items={cartItems

@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutGrid, ClipboardList, LogOut } from 'lucide-react';
+import { LayoutGrid, ClipboardList, LogOut, Truck } from 'lucide-react';
+import { SHIPPING_INR } from '@/app/admin/shipping';
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -33,7 +34,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <span className="font-serif text-lg font-bold text-gray-900">Leve Cottons</span>
             <span className="text-xs font-bold uppercase tracking-wider text-purple-600">Admin</span>
           </div>
-          <nav className="flex flex-wrap items-center gap-1">
+          <nav className="flex flex-wrap items-center gap-2">
             <Link href="/admin/products" className={linkClass(productsActive)} prefetch>
               <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden />
               Products
@@ -42,6 +43,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <ClipboardList className="h-4 w-4 shrink-0" aria-hidden />
               Orders
             </Link>
+            <span
+              className="inline-flex items-center gap-1.5 rounded-lg border border-purple-200 bg-purple-50/80 px-2.5 py-1.5 text-xs font-semibold text-purple-800"
+              title="Flat shipping added to every order at checkout"
+            >
+              <Truck className="h-3.5 w-3.5 shrink-0" aria-hidden />
+              Shipping ₹{SHIPPING_INR}/order
+            </span>
           </nav>
           <button
             type="button"

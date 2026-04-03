@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { SHIPPING_INR } from '@/app/admin/shipping';
 import crypto from 'crypto';
 
 export async function POST(request: NextRequest) {
@@ -26,6 +27,14 @@ export async function POST(request: NextRequest) {
         // Payment is verified — save order to Supabase
         const orderId = `LC-${Date.now()}`;
 
+        const items = orderDetails?.items || [];
+        const itemsTotal = items.reduce(
+            (sum: number, row: { price?: number; quantity?: number }) =>
+                sum + Number(row.price ?? 0) * Number(row.quantity ?? 0),
+            0
+        );
+        const totalAmount = itemsTotal + SHIPPING_INR;
+
         const { error: orderError } = await supabaseAdmin.from('orders').insert({
             id: orderId,
             customer_name: orderDetails.customerName,
@@ -33,7 +42,7 @@ export async function POST(request: NextRequest) {
             customer_phone: orderDetails.customerPhone,
             shipping_address: orderDetails.shippingAddress,
             items: orderDetails.items,
-            total_amount: orderDetails.totalAmount,
+            total_amount: totalAmount,
             razorpay_order_id,
             razorpay_payment_id,
             payment_status: 'paid',
