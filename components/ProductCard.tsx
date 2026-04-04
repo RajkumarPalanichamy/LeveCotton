@@ -5,6 +5,7 @@ import { CreditCard, ShoppingBag, Check } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { LazyImage } from './LazyImage';
 import { RazorpayCheckout } from './RazorpayCheckout';
+import { SHIPPING_INR } from '@/app/admin/shipping';
 
 interface Product {
   id: string;
@@ -171,12 +172,32 @@ export function ProductCard({ product }: ProductCardProps) {
                 </div>
 
                 {/* Product summary */}
-                <div className="flex gap-3 p-3 bg-gray-50 rounded-xl mb-4">
-                  <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded-lg" />
-                  <div>
-                    <p className="font-medium text-sm text-gray-900 line-clamp-1">{product.name}</p>
-                    <p className="text-xs text-gray-500 font-mono">{product.productCode}</p>
-                    <p className="font-bold text-purple-600">₹{product.price.toLocaleString('en-IN')}</p>
+                <div className="p-3 bg-gray-50 rounded-xl mb-4 space-y-2">
+                  <div className="flex gap-3">
+                    <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded-lg" />
+                    <div>
+                      <p className="font-medium text-sm text-gray-900 line-clamp-1">{product.name}</p>
+                      <p className="text-xs text-gray-500 font-mono">{product.productCode}</p>
+                      <p className="text-xs text-gray-600 mt-0.5">
+                        Item: ₹{product.price.toLocaleString('en-IN')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5 text-xs border-t border-gray-200 pt-2">
+                    <div className="flex justify-between text-gray-600">
+                      <span>Subtotal</span>
+                      <span className="tabular-nums">₹{product.price.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between text-gray-600">
+                      <span>Shipping</span>
+                      <span className="tabular-nums">₹{SHIPPING_INR.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-gray-900 pt-1.5 border-t border-gray-200">
+                      <span>Total</span>
+                      <span className="tabular-nums text-purple-700">
+                        ₹{(product.price + SHIPPING_INR).toLocaleString('en-IN')}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -214,7 +235,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 <div className="mt-4 space-y-2">
                   {buyNowInfo.name && buyNowInfo.phone && buyNowInfo.address ? (
                     <RazorpayCheckout
-                      amount={product.price}
+                      amount={product.price + SHIPPING_INR}
                       customerInfo={buyNowInfo}
                       items={[{
                         productId: product.id,

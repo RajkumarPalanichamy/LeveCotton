@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { SHIPPING_INR } from '@/app/admin/shipping';
 
 export async function GET(request: NextRequest) {
   try {
@@ -111,6 +112,7 @@ export async function POST(request: NextRequest) {
         `📦 *Product Code:* ${product.product_code}\\n` +
         `👗 *Product:* ${product.name}\\n` +
         `💰 *Price:* ₹${product.price.toLocaleString()}\\n` +
+        `🚚 *Shipping:* ₹${SHIPPING_INR.toLocaleString()} per order\\n` +
         `${product.original_price ? `~~₹${product.original_price.toLocaleString()}~~ *${product.discount}% OFF*\\n` : ''}` +
         `🎨 *Color:* ${product.color}\\n` +
         `🧵 *Fabric:* ${product.fabric}\\n` +
@@ -152,7 +154,8 @@ export async function POST(request: NextRequest) {
       }
 
       const quantity = customerInfo.quantity || 1;
-      const totalAmount = product.price * quantity;
+      const itemsSubtotal = product.price * quantity;
+      const totalAmount = itemsSubtotal + SHIPPING_INR;
       const orderId = `LC-${Date.now()}`;
 
       // Save order to Supabase
@@ -187,7 +190,9 @@ export async function POST(request: NextRequest) {
         `Color: ${product.color}\\n` +
         `Fabric: ${product.fabric}\\n` +
         `Collection: ${product.collection}\\n` +
-        `Quantity: ${quantity}\\n\\n` +
+        `Quantity: ${quantity}\\n` +
+        `Subtotal: ₹${itemsSubtotal.toLocaleString()}\\n` +
+        `🚚 *Shipping: ₹${SHIPPING_INR.toLocaleString()}*\\n\\n` +
         `💳 *Total Amount: ₹${totalAmount.toLocaleString()}*\\n\\n` +
         `📅 *Order Date: ${new Date().toLocaleDateString('en-IN')}*\\n` +
         `🕐 *Order Time: ${new Date().toLocaleTimeString('en-IN')}*`;

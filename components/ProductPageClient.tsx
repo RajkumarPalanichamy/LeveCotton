@@ -6,6 +6,7 @@ import { useCart } from '@/hooks/useCart';
 import { RazorpayCheckout } from '@/components/RazorpayCheckout';
 import { isProductInStock } from '@/lib/productStock';
 import { formatCategoryLabels } from '@/lib/productCategories';
+import { SHIPPING_INR } from '@/app/admin/shipping';
 
 interface Product {
   id: string;
@@ -223,16 +224,34 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                 </div>
 
                 {/* Product summary */}
-                <div className="flex gap-4 p-4 bg-gray-50 rounded-xl mb-6">
-                  <img src={product.image} alt={product.name} className="w-20 h-20 object-cover rounded-lg" />
-                  <div>
-                    <p className="font-semibold text-gray-900">{product.name}</p>
-                    <p className="text-sm text-gray-500">
-                      {formatCategoryLabels(product.category) || product.category?.replace(/-/g, ' ')}
-                    </p>
-                    <p className="text-xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                      ₹{product.price.toLocaleString('en-IN')}
-                    </p>
+                <div className="p-4 bg-gray-50 rounded-xl mb-6 space-y-3">
+                  <div className="flex gap-4">
+                    <img src={product.image} alt={product.name} className="w-20 h-20 object-cover rounded-lg" />
+                    <div>
+                      <p className="font-semibold text-gray-900">{product.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {formatCategoryLabels(product.category) || product.category?.replace(/-/g, ' ')}
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Item: ₹{product.price.toLocaleString('en-IN')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm border-t border-gray-200 pt-3">
+                    <div className="flex justify-between text-gray-600">
+                      <span>Subtotal</span>
+                      <span className="tabular-nums">₹{product.price.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between text-gray-600">
+                      <span>Shipping</span>
+                      <span className="tabular-nums">₹{SHIPPING_INR.toLocaleString('en-IN')}</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-gray-900 pt-2 border-t border-gray-200">
+                      <span>Total</span>
+                      <span className="tabular-nums text-lg bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                        ₹{(product.price + SHIPPING_INR).toLocaleString('en-IN')}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -270,7 +289,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                 <div className="mt-6 space-y-3">
                   {buyNowInfo.name && buyNowInfo.phone && buyNowInfo.address ? (
                     <RazorpayCheckout
-                      amount={product.price}
+                      amount={product.price + SHIPPING_INR}
                       customerInfo={buyNowInfo}
                       items={[{
                         productId: product.id,
