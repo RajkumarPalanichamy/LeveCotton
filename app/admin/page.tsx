@@ -180,21 +180,18 @@ export default function AdminPanel() {
 
     setSaving(true);
     try {
-      let success = false;
-      if (isAdding) {
-        success = await createProduct({
-          ...editForm,
-          id: editForm.productCode.toLowerCase().replace(/\s+/g, '-'),
-        } as any);
-      } else {
-        success = await updateProduct(selectedProduct.id, editForm);
-      }
+      const result = isAdding
+        ? await createProduct({
+            ...editForm,
+            id: editForm.productCode.toLowerCase().replace(/\s+/g, '-'),
+          } as any)
+        : await updateProduct(selectedProduct.id, editForm);
 
-      if (success) {
+      if (result.success) {
         alert(isAdding ? '✅ Product added successfully!' : '✅ Product updated successfully!');
         closeModal();
       } else {
-        alert('❌ Action failed. Please check console for details.');
+        alert(`❌ Action failed${result.error ? `: ${result.error}` : '. Please check console for details.'}`);
       }
     } catch (error) {
       alert('❌ Error occurred');

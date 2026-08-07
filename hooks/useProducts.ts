@@ -56,14 +56,17 @@ export function useProducts(filter?: string) {
         body: JSON.stringify(product)
       });
 
+      const data = await response.json().catch(() => null);
+
       if (response.ok) {
         fetchProducts();
-        return true;
+        return { success: true as const };
       }
-      return false;
+      console.error('Failed to create product:', data);
+      return { success: false as const, error: data?.details || data?.error };
     } catch (error) {
       console.error('Failed to create product:', error);
-      return false;
+      return { success: false as const, error: error instanceof Error ? error.message : undefined };
     }
   };
 
@@ -75,14 +78,17 @@ export function useProducts(filter?: string) {
         body: JSON.stringify({ id, ...product })
       });
 
+      const data = await response.json().catch(() => null);
+
       if (response.ok) {
         fetchProducts();
-        return true;
+        return { success: true as const };
       }
-      return false;
+      console.error('Failed to update product:', data);
+      return { success: false as const, error: data?.details || data?.error };
     } catch (error) {
       console.error('Failed to update product:', error);
-      return false;
+      return { success: false as const, error: error instanceof Error ? error.message : undefined };
     }
   };
 

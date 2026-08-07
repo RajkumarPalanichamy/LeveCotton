@@ -231,6 +231,7 @@ export async function POST(request: NextRequest) {
     const { error: insertError } = await supabaseAdmin.from('products').insert(newProduct);
 
     if (insertError) {
+      console.error('Create product insert error:', insertError);
       return NextResponse.json({ error: 'Failed to create product', details: insertError.message }, { status: 500 });
     }
 
