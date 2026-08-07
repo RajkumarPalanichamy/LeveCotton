@@ -20,8 +20,6 @@ export default function AdminPanel() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [adminUser, setAdminUser] = useState<any>(null);
-  const PRODUCT_LIMIT = 75;
-  const isLimitReached = products.length >= PRODUCT_LIMIT;
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [editForm, setEditForm] = useState({
@@ -103,10 +101,6 @@ export default function AdminPanel() {
 
   const openAddModal = () => {
     setCategoryMenuOpen(false);
-    if (isLimitReached) {
-      alert('⚠️ Product limit reached (75 products). Please contact the administrator for a plan upgrade.');
-      return;
-    }
     setIsAdding(true);
     setSelectedProduct(null);
     setEditForm({
@@ -307,11 +301,7 @@ export default function AdminPanel() {
               <button
                 type="button"
                 onClick={openAddModal}
-                disabled={isLimitReached}
-                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-bold ${isLimitReached
-                  ? 'bg-gray-400 text-white cursor-not-allowed'
-                  : 'bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white'
-                  }`}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-bold bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white"
               >
                 <Plus className="w-5 h-5" />
                 <span>Add Product</span>
