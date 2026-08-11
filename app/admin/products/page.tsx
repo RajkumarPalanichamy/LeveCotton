@@ -6,6 +6,7 @@ import { useProducts } from '@/hooks/useProducts';
 import { LazyImage } from '@/components/LazyImage';
 import { LazyLoad } from '@/components/LazyLoad';
 import { Edit, Save, X, Upload, Package, Search, RefreshCw, Plus, Trash2, ChevronDown } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   SHOP_CATEGORY_OPTIONS,
   formatCategoryLabels,
@@ -157,13 +158,13 @@ export default function AdminPanel() {
       const result = await response.json();
       if (result.success && result.imageUrl) {
         setEditForm(prev => ({ ...prev, image: result.imageUrl }));
-        alert('✅ Image uploaded successfully!');
+        toast.success('Image uploaded successfully!');
       } else {
-        alert('❌ Upload failed: ' + (result.error || 'Unknown error'));
+        toast.error('Upload failed: ' + (result.error || 'Unknown error'));
       }
     } catch (error) {
       console.error('Upload catch error:', error);
-      alert('❌ Upload failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      toast.error('Upload failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setUploading(false);
     }
@@ -182,13 +183,13 @@ export default function AdminPanel() {
         : await updateProduct(selectedProduct.id, editForm);
 
       if (result.success) {
-        alert(isAdding ? '✅ Product added successfully!' : '✅ Product updated successfully!');
         closeModal();
+        toast.success(isAdding ? 'Product added successfully!' : 'Product updated successfully!');
       } else {
-        alert(`❌ Action failed${result.error ? `: ${result.error}` : '. Please check console for details.'}`);
+        toast.error(`Action failed${result.error ? `: ${result.error}` : '. Please check console for details.'}`);
       }
     } catch (error) {
-      alert('❌ Error occurred');
+      toast.error('Error occurred');
     } finally {
       setSaving(false);
     }
@@ -209,9 +210,9 @@ export default function AdminPanel() {
       const success = await deleteProduct(deleteTarget.id);
       if (success) {
         setDeleteTarget(null);
-        alert('✅ Product deleted successfully!');
+        toast.success('Product deleted successfully!');
       } else {
-        alert('❌ Failed to delete product');
+        toast.error('Failed to delete product');
       }
     } finally {
       setDeleting(false);
