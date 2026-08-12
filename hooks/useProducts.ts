@@ -16,21 +16,21 @@ export interface Product {
   productCode?: string;
 }
 
-export function useProducts(filter?: string) {
+export function useProducts(filter?: string, limit: number = 70) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProducts();
-  }, [filter]);
+  }, [filter, limit]);
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const url = filter ? `/api/products?filter=${filter}&limit=70` : '/api/products?limit=70';
+      const url = filter ? `/api/products?filter=${filter}&limit=${limit}` : `/api/products?limit=${limit}`;
       const response = await fetch(url);
 
       if (!response.ok) {

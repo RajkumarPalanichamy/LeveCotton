@@ -17,7 +17,7 @@ import {
 
 export default function AdminPanel() {
   const router = useRouter();
-  const { products, loading, updateProduct, createProduct, deleteProduct } = useProducts();
+  const { products, loading, updateProduct, createProduct, deleteProduct } = useProducts(undefined, 5000);
   const [isAdding, setIsAdding] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
