@@ -25,7 +25,7 @@ export default function Cart() {
   });
 
   useEffect(() => {
-    fetch('/api/products?limit=70')
+    fetch('/api/products?limit=5000')
       .then(res => res.json())
       .then(data => setAllProducts(data.products || []));
   }, []);

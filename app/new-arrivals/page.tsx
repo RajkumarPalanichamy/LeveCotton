@@ -6,14 +6,18 @@ import { useCart } from '@/hooks/useCart';
 import { useProducts } from '@/hooks/useProducts';
 import { Navbar } from '@/components/Navbar';
 import { ProductFilters } from '@/components/ProductFilters';
+import { Pagination } from '@/components/Pagination';
 import Link from 'next/link';
 
+const PAGE_SIZE = 24;
+
 export default function NewArrivals() {
-  const { products, loading, error } = useProducts('new-arrivals');
+  const { products, loading, error } = useProducts('new-arrivals', 1000);
   const { addToCart } = useCart();
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({ colors: [], priceRange: '', fabrics: [] });
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const colors = ['Red', 'Blue', 'Green', 'Pink', 'Black', 'White', 'Yellow', 'Purple'];
   const fabrics = ['Cotton', 'Silk', 'Georgette', 'Rayon'];
@@ -41,6 +45,7 @@ export default function NewArrivals() {
     }
     
     setFilteredProducts(filtered);
+    setCurrentPage(1);
   }, [filters, products]);
 
   console.log('New Arrivals page - Products:', products.length, loading, error);
@@ -86,6 +91,12 @@ export default function NewArrivals() {
   }
 
   const displayProducts = filteredProducts.length > 0 || filters.colors.length > 0 || filters.fabrics.length > 0 || filters.priceRange ? filteredProducts : products;
+  const totalPages = Math.max(1, Math.ceil(displayProducts.length / PAGE_SIZE));
+  const pageProducts = displayProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -111,7 +122,7 @@ export default function NewArrivals() {
           <div className="flex-1">
 
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {displayProducts.map((product) => {
+          {pageProducts.map((product) => {
             const canBuy = product.inStock !== false;
             return (
             <div key={product.id} className="group">
@@ -156,6 +167,12 @@ export default function NewArrivals() {
             );
           })}
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          className="mt-10"
+        />
           </div>
         </div>
       </div>

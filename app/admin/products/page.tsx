@@ -7,12 +7,15 @@ import { LazyImage } from '@/components/LazyImage';
 import { LazyLoad } from '@/components/LazyLoad';
 import { Edit, Save, X, Upload, Package, Search, RefreshCw, Plus, Trash2, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
+import { Pagination } from '@/components/Pagination';
 import {
   SHOP_CATEGORY_OPTIONS,
   formatCategoryLabels,
   mergeCategoriesForSave,
   getSelectedShopSlugs,
 } from '@/lib/productCategories';
+
+const PAGE_SIZE = 24;
 
 export default function AdminPanel() {
   const router = useRouter();
@@ -22,6 +25,7 @@ export default function AdminPanel() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [adminUser, setAdminUser] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [editForm, setEditForm] = useState({
     name: '',
@@ -224,6 +228,12 @@ export default function AdminPanel() {
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (product.category ?? '').toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE));
+  const pageProducts = filteredProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Show loading while checking authentication
   if (checkingAuth) {
@@ -291,7 +301,10 @@ export default function AdminPanel() {
                 type="text"
                 placeholder="Search by product code, name, or category..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:outline-none"
               />
             </div>
@@ -354,7 +367,7 @@ export default function AdminPanel() {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
+          {pageProducts.map((product) => (
             <LazyLoad
               key={product.id}
               className="h-full"
@@ -445,6 +458,13 @@ export default function AdminPanel() {
             <p className="text-gray-500 text-lg">No products found</p>
           </div>
         )}
+
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          className="mt-10"
+        />
       </div>
 
       {/* Modal */}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ProductCard } from '../../../components/ProductCard';
 import { WhatsAppButton } from '../../../components/WhatsAppButton';
+import { Pagination } from '../../../components/Pagination';
 
 interface Product {
   id: string;
@@ -32,26 +33,30 @@ interface ApiResponse {
   };
 }
 
+const PAGE_SIZE = 24;
+
 export default function EnhancedCollectionsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [collections, setCollections] = useState<string[]>([]);
   const [selectedCollection, setSelectedCollection] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     fetchProducts();
+    setCurrentPage(1);
   }, [selectedCollection]);
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const url = selectedCollection 
-        ? `/api/products?collection=${encodeURIComponent(selectedCollection)}`
-        : '/api/products?limit=70';
-      
+      const url = selectedCollection
+        ? `/api/products?collection=${encodeURIComponent(selectedCollection)}&limit=5000`
+        : '/api/products?limit=5000';
+
       const response = await fetch(url);
       const data: ApiResponse = await response.json();
-      
+
       setProducts(data.products);
       setCollections(data.collections || []);
     } catch (error) {
@@ -59,6 +64,13 @@ export default function EnhancedCollectionsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const totalPages = Math.max(1, Math.ceil(products.length / PAGE_SIZE));
+  const pageProducts = products.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const collectionCounts = collections.reduce((acc, collection) => {
@@ -185,11 +197,19 @@ export default function EnhancedCollectionsPage() {
               <>
                 {/* Products Grid */}
                 {products.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {products.map((product) => (
-                      <ProductCard key={product.id} product={product} />
-                    ))}
-                  </div>
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {pageProducts.map((product) => (
+                        <ProductCard key={product.id} product={product} />
+                      ))}
+                    </div>
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                      className="mt-10"
+                    />
+                  </>
                 ) : (
                   <div className="text-center py-12">
                     <div className="text-gray-400 text-6xl mb-4">🔍</div>

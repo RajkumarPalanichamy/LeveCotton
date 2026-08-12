@@ -73,7 +73,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 };
 
 export const NewArrivals = () => {
-  const { products, loading, error } = useProducts();
+  const { products, loading, error } = useProducts(undefined, 200);
   const [currentIndex, setCurrentIndex] = useState(0);
   
   const displayProducts = products;

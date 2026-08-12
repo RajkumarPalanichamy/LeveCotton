@@ -23,6 +23,9 @@ export async function GET(request: NextRequest) {
       query = query.ilike('collection', `%${collection}%`);
     }
 
+    // Stable ordering so pages don't skip/repeat rows across requests
+    query = query.order('id', { ascending: true });
+
     // Pagination
     const startIndex = (page - 1) * limit;
     query = query.range(startIndex, startIndex + limit - 1);
